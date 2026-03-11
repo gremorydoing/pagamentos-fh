@@ -100,20 +100,20 @@ select option{background:var(--sf2)}
 .ts{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
 thead{position:sticky;top:0;z-index:10}
-th{background:var(--sf2);padding:8px 11px;text-align:left;font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--br);white-space:nowrap;cursor:pointer;user-select:none}
-th:hover{color:var(--tx)}
+th{background:var(--sf2);padding:9px 11px;text-align:left;font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--br);white-space:nowrap;cursor:pointer;user-select:none;transition:color .13s}
+th:hover{color:var(--tx);background:var(--sf3)}
 th.sorted{color:var(--ac)}
-td{padding:8px 11px;border-bottom:1px solid var(--br);vertical-align:middle;font-size:13px;transition:background .12s}
+th span.sort-arrow{font-size:9px;opacity:.4;margin-left:3px;transition:opacity .13s}
+th:hover span.sort-arrow,th.sorted span.sort-arrow{opacity:1}
+td{padding:9px 11px;border-bottom:1px solid var(--br);vertical-align:middle;font-size:13px;transition:background .1s}tr:hover td{background:var(--acs)}tr.arch td{opacity:.45}tr.arch:hover td{opacity:.65}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:var(--acs)}
-tr.arch td{opacity:.48}
 tr.arch td:first-child{border-left:3px solid var(--rd)}
 .cd{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cf{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mu)}
 .co{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-style:italic;color:var(--yw)}
 .mo{font-family:var(--mo);font-size:11px;color:var(--mu)}
 .vl{font-family:var(--mo);font-weight:600;white-space:nowrap}
-.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;max-width:200px}
 .bd2{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .av{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:9px;font-weight:700;flex-shrink:0}
 
@@ -264,16 +264,18 @@ tr.arch td:first-child{border-left:3px solid var(--rd)}
 .fi-g select.fi{width:100%}
 
 /* INLINE EDIT */
-.ie-wrap{position:relative;cursor:pointer;border-radius:5px;padding:2px 4px;margin:-2px -4px;transition:background .12s}
-.ie-wrap:hover{background:var(--acs)}
-.ie-wrap:hover::after{content:'✎';font-size:9px;color:var(--ac);margin-left:4px;opacity:.7}
+.ie-wrap{position:relative;cursor:pointer;border-radius:5px;padding:2px 5px;margin:-2px -5px;transition:background .12s;display:inline-flex;align-items:center;gap:3px}
+.ie-wrap:hover{background:var(--acs);outline:1px solid var(--ac);outline-offset:-1px}
+.ie-wrap::after{content:'✎';font-size:9px;color:var(--ac);opacity:0;transition:opacity .12s;flex-shrink:0}
+.ie-wrap:hover::after{opacity:.8}
 .ie-sel{background:var(--bg);border:1px solid var(--ac);border-radius:6px;padding:3px 6px;color:var(--tx);font-family:var(--fn);font-size:12px;outline:none;cursor:pointer;width:100%;min-width:140px}
 .ie-ta{background:var(--bg);border:1px solid var(--ac);border-radius:6px;padding:4px 7px;color:var(--tx);font-family:var(--fn);font-size:12px;outline:none;resize:vertical;width:160px;min-height:54px}
 .ie-date{background:var(--bg);border:1px solid var(--ac);border-radius:6px;padding:3px 6px;color:var(--tx);font-family:var(--fn);font-size:12px;outline:none}
 /* Context menu */
 .ctx-btn{position:relative;display:inline-flex;align-items:center;justify-content:center}
-.ctx-menu{position:absolute;right:0;top:100%;background:var(--sf);border:1px solid var(--br2);border-radius:10px;padding:4px;z-index:100;min-width:140px;box-shadow:var(--sh);display:none;flex-direction:column;gap:2px}
+.ctx-menu{position:absolute;right:0;top:calc(100% + 4px);background:var(--sf);border:1px solid var(--br2);border-radius:10px;padding:4px;z-index:200;min-width:150px;box-shadow:0 8px 30px rgba(0,0,0,.35);display:none;flex-direction:column;gap:2px;animation:fadeIn .12s}
 .ctx-btn:focus-within .ctx-menu,.ctx-menu:hover{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .ctx-item{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:7px;font-size:12px;cursor:pointer;transition:background .12s;white-space:nowrap;border:none;background:transparent;color:var(--tx);font-family:var(--fn);width:100%;text-align:left}
 .ctx-item:hover{background:var(--sf2)}
 .ctx-item.danger:hover{background:rgba(255,63,94,.12);color:var(--rd)}
@@ -355,17 +357,17 @@ tr.arch td:first-child{border-left:3px solid var(--rd)}
     </div>
     <div class="tw"><div class="ts"><table>
       <thead><tr>
-        <th onclick="sortBy('dl')">Data<span id="si-dl"> &#8597;</span></th>
-        <th onclick="sortBy('rc')">RC<span id="si-rc"> &#8597;</span></th>
-        <th onclick="sortBy('desc')">Descricao<span id="si-desc"> &#8597;</span></th>
-        <th onclick="sortBy('forn')">Fornecedor<span id="si-forn"> &#8597;</span></th>
-        <th onclick="sortBy('valor')">Valor<span id="si-val"> &#8597;</span></th>
-        <th onclick="sortBy('area')">Area<span id="si-area"> &#8597;</span></th>
-        <th onclick="sortBy('status')">Status<span id="si-st"> &#8597;</span></th>
-        <th onclick="sortBy('_resp')">Resp.<span id="si-resp"> &#8597;</span></th>
-        <th onclick="sortBy('tipo')">Tipo<span id="si-tipo"> &#8597;</span></th>
-        <th onclick="sortBy('dp')">Pgto<span id="si-pgto"> &#8597;</span></th>
-        <th onclick="sortBy('obs')">Obs<span id="si-obs"> &#8597;</span></th>
+        <th onclick="sortBy('dl')">Data<span id="si-dl" class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('rc')">RC<span id="si-rc" class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('desc')">Descricao<span id="si-desc" class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('forn')">Fornecedor<span id="si-forn" class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('valor')">Valor<span id="si-val" class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('area')">Area<span id="si-area" class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('status')">Status<span id="si-st" class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('_resp')">Resp.<span id="si-resp" class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('tipo')">Tipo<span id="si-tipo" class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('dp')">Pgto<span id="si-pgto" class="sort-arrow">↕</span></th>
+        <th onclick="sortBy('obs')">Obs<span id="si-obs" class="sort-arrow">↕</span></th>
         <th style="cursor:default">Acoes</th>
       </tr></thead>
       <tbody id="t-body"></tbody>
@@ -783,7 +785,16 @@ function clearDashF(){
 }
 
 // ── SORT ────────────────────────────────────────────────────────────────
-function sortBy(col){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}applySort();renderTable();}
+function sortBy(col){
+  if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}
+  applySort();renderTable();
+  // Update sorted class on headers
+  document.querySelectorAll('th').forEach(th=>th.classList.remove('sorted'));
+  const map={'dl':'si-dl','rc':'si-rc','desc':'si-desc','forn':'si-forn','valor':'si-val','area':'si-area','status':'si-st','_resp':'si-resp','tipo':'si-tipo','dp':'si-pgto','obs':'si-obs'};
+  const sid=map[col]; if(sid){const sp=document.getElementById(sid);if(sp&&sp.parentElement){sp.parentElement.classList.add('sorted');sp.textContent=sortDir===1?'↑':'↓';}}
+  // Reset others
+  Object.entries(map).filter(([k])=>k!==col).forEach(([,sid])=>{const sp=document.getElementById(sid);if(sp)sp.textContent='↕';});
+}
 function applySort(){
   filtered.sort((a,b)=>{
     let av=a[sortCol], bv=b[sortCol];
@@ -869,30 +880,79 @@ function ieResp(id){
 function ieObs(id){
   const r=data.find(x=>x._id===id); if(!r)return;
   const cell=document.getElementById('ie-ob-'+id); if(!cell)return;
+
+  const wrap=document.createElement('div');
+  wrap.style.cssText='display:flex;flex-direction:column;gap:4px';
+
   const ta=document.createElement('textarea');
   ta.className='ie-ta'; ta.value=r.obs||'';
-  ta.onblur=()=>{
+  ta.placeholder='Adicionar observacao...';
+
+  const btns=document.createElement('div');
+  btns.style.cssText='display:flex;gap:4px';
+
+  const confirm=document.createElement('button');
+  confirm.textContent='Salvar';
+  confirm.style.cssText='padding:3px 9px;border-radius:6px;border:none;background:var(--ac);color:#fff;font-family:var(--fn);font-size:11px;font-weight:600;cursor:pointer';
+
+  const cancel=document.createElement('button');
+  cancel.textContent='Cancelar';
+  cancel.style.cssText='padding:3px 9px;border-radius:6px;border:1px solid var(--br);background:transparent;color:var(--mu);font-family:var(--fn);font-size:11px;cursor:pointer';
+
+  function saveObs(){
     const nd=new Date().toLocaleDateString('pt-BR');
     r.obs=ta.value.trim()||null;
     r._audit=r._audit||[];
     r._audit.push({dt:nd,msg:'Observacao atualizada'});
     saveState(); applyFilters(); toast('Obs salva');
-  };
-  ta.onkeydown=e=>{if(e.key==='Escape')applyFilters();};
-  cell.innerHTML=''; cell.appendChild(ta); ta.focus();
+  }
+
+  confirm.onclick=saveObs;
+  cancel.onclick=()=>applyFilters();
+  ta.onkeydown=e=>{if(e.key==='Escape')applyFilters();if(e.key==='Enter'&&e.ctrlKey)saveObs();};
+
+  btns.appendChild(confirm); btns.appendChild(cancel);
+  wrap.appendChild(ta); wrap.appendChild(btns);
+  cell.innerHTML=''; cell.appendChild(wrap);
+  ta.focus(); ta.setSelectionRange(ta.value.length,ta.value.length);
 }
 function ieDp(id){
   const r=data.find(x=>x._id===id); if(!r)return;
   const cell=document.getElementById('ie-dp-'+id); if(!cell)return;
+
+  // Wrap: input + confirm btn + cancel btn
+  const wrap=document.createElement('div');
+  wrap.style.cssText='display:flex;align-items:center;gap:5px;flex-wrap:wrap';
+
   const inp=document.createElement('input');
   inp.type='date'; inp.className='ie-date'; inp.value=r.dp||'';
-  inp.onchange=()=>{
-    r.dp=inp.value||null;
-    if(r.dp){const m=r.dp.match(/^(\d{4})-(\d{2})/);if(m&&!r._ano){r._ano=m[1];r._mes=parseInt(m[2]);}}
+
+  const confirm=document.createElement('button');
+  confirm.textContent='OK';
+  confirm.style.cssText='padding:3px 9px;border-radius:6px;border:none;background:var(--ac);color:#fff;font-family:var(--fn);font-size:11px;font-weight:600;cursor:pointer';
+
+  const cancel=document.createElement('button');
+  cancel.textContent='X';
+  cancel.style.cssText='padding:3px 7px;border-radius:6px;border:1px solid var(--br);background:transparent;color:var(--mu);font-family:var(--fn);font-size:11px;cursor:pointer';
+
+  function saveDate(){
+    const val=inp.value||null;
+    r.dp=val;
+    if(val){
+      const m=val.match(/^(\d{4})-(\d{2})/);
+      if(m){r._ano=m[1];r._mes=parseInt(m[2]);}
+    }
+    if(!r._audit)r._audit=[];
+    r._audit.push({dt:new Date().toLocaleDateString('pt-BR'),msg:'Data pagamento: '+(val||'removida')});
     saveState(); applyFilters(); toast('Data de pagamento atualizada');
-  };
-  inp.onblur=()=>setTimeout(()=>applyFilters(),200);
-  cell.innerHTML=''; cell.appendChild(inp); inp.focus();
+  }
+
+  confirm.onclick=saveDate;
+  cancel.onclick=()=>applyFilters();
+  inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();saveDate();}else if(e.key==='Escape')applyFilters();};
+
+  wrap.appendChild(inp); wrap.appendChild(confirm); wrap.appendChild(cancel);
+  cell.innerHTML=''; cell.appendChild(wrap); inp.focus();
 }
 
 function renderTable(){
