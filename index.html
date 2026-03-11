@@ -255,6 +255,13 @@ tr.arch td:first-child{border-left:3px solid var(--rd)}
 .user-email{font-size:12px;color:var(--mu);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .logout-btn{padding:4px 9px;border-radius:7px;border:1px solid var(--br);background:transparent;color:var(--mu);font-family:var(--fn);font-size:11px;cursor:pointer;transition:all .13s}
 .logout-btn:hover{color:var(--rd);border-color:rgba(255,63,94,.4)}
+
+/* FLAT EDIT MODAL */
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.edit-grid .full{grid-column:1/-1}
+.edit-section{margin-bottom:16px}
+.edit-section-title{font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--br)}
+.fi-g select.fi{width:100%}
 </style>
 </head>
 <body data-theme="dark">
@@ -426,11 +433,29 @@ tr.arch td:first-child{border-left:3px solid var(--rd)}
     <div class="mft">
       <button class="btn bg" id="wz-back" onclick="wzBack()" style="display:none">&#8592; Voltar</button>
       <button class="btn bg" onclick="closeOv('ov-form')">Cancelar</button>
-      <button class="btn bp" id="wz-next" onclick="wzNext()">Continuar &#8594;</button>
+      <button class="btn bp" id="wz-next" onclick="wzNext()">Continuar</button>
     </div>
   </div>
 </div>
 
+
+<!-- FLAT EDIT MODAL -->
+<div class="ov" id="ov-edit">
+  <div class="modal" style="max-width:680px">
+    <div class="mhd">
+      <div>
+        <div class="mtitle" id="edit-modal-title">Editar Registro</div>
+        <div style="font-size:11px;color:var(--mu);margin-top:2px" id="edit-modal-sub"></div>
+      </div>
+      <button class="ib sm" onclick="closeOv('ov-edit')">&#10005;</button>
+    </div>
+    <div class="mbody" id="edit-modal-body"></div>
+    <div class="mft">
+      <button class="btn bg" onclick="closeOv('ov-edit')">Cancelar</button>
+      <button class="btn bp" onclick="saveEdit()">&#10003; Salvar</button>
+    </div>
+  </div>
+</div>
 <!-- DETAIL MODAL -->
 <div class="ov" id="ov-detail">
   <div class="modal">
@@ -977,7 +1002,7 @@ function openDetail(id){
   switchDTab('info');
   openOv('ov-detail');
 }
-function editFromDetail(){closeOv('ov-detail');openWizard('edit',detailId);}
+function editFromDetail(){closeOv('ov-detail');openEditModal(detailId);}
 function switchDTab(tab){
   document.getElementById('dtab-info').classList.toggle('active',tab==='info');
   document.getElementById('dtab-audit').classList.toggle('active',tab==='audit');
@@ -1001,24 +1026,156 @@ let wzStep = 1;
 let wzEditId = null;
 
 function openWizard(mode, id){
-  wzEditId = mode==='edit' ? id : null;
-  wzStep = mode==='edit' ? 2 : 1;
-  wzType = null;
-
   if(mode==='edit'){
-    const r = data.find(x=>x._id===id); if(!r)return;
-    wzType = r.oc ? 'pedido' : 'rc';
-    document.getElementById('wz-modal-title').textContent = 'Editar Registro';
-    document.getElementById('wz-progress').style.display = 'flex';
-    goToStep(2, true);
-    fillStep2(r);
-    fillStep3(r);
-  } else {
-    document.getElementById('wz-modal-title').textContent = 'Novo Registro';
-    document.getElementById('wz-progress').style.display = 'none';
-    goToStep(1);
+    openEditModal(id);
+    return;
   }
+  // New record — wizard flow
+  wzEditId = null;
+  wzStep = 1;
+  wzType = null;
+  document.getElementById('wz-modal-title').textContent = 'Novo Registro';
+  document.getElementById('wz-progress').style.display = 'none';
+  goToStep(1);
   openOv('ov-form');
+}
+
+// ── FLAT EDIT MODAL ──────────────────────────────────────────────────
+let editingId = null;
+
+function openEditModal(id){
+  const r = data.find(x=>x._id===id); if(!r)return;
+  editingId = id;
+  document.getElementById('edit-modal-title').textContent = 'Editar Registro';
+  document.getElementById('edit-modal-sub').textContent = r.desc || '';
+
+  const isRC = !r.oc || r.oc==='-';
+  const ALL_STATUS = ['0 - Aguardando confirmacao','1 - Abertura RC','2 - Aprovacao RC','3 - Gerar Pedido','4 - Aprovacao Pedido','5 - Enviar OC ao fornecedor','5 -Enviar OC ao fornecedor','6 - Aguardando envio da NF','7- Aguardando lancamento NF','8 - Liberar FBL1N','9 - Aguardando Pgto','10 - Pago','11 - Cancelado'];
+  const stOpts = ALL_STATUS.map(s=>'<option value="'+s+'"'+(r.status===s?' selected':'')+'>'+s+'</option>').join('');
+  const respOpts = [
+    ['Isabella Robaina','Isabella Robaina (Bella)'],
+    ['Isabela Comparoni','Isabela Comparoni (Isa)'],
+    ['Eduardo Bertelli','Eduardo Bertelli (Du/Edu)'],
+    ['Julia Magalhaes','Julia Magalhaes (Ju)']
+  ].map(([v,l])=>'<option value="'+v+'"'+(r._resp===v?' selected':'')+'>'+l+'</option>').join('');
+  const tipoOpts = ['NFe','Nota de Debito','Danfe','Recibo','Boleto'].map(t=>'<option'+(r.tipo===t?' selected':'')+'>'+t+'</option>').join('');
+
+  // Determine CC select value
+  const knownCC = [
+    ['E9013F2602','Marketing e Comunicacao'],
+    ['E9013F2602','DM'],
+    ['E9011A2701','Presidencia'],
+    ['E9013F2601','Comunicacao']
+  ];
+  const ccMatch = knownCC.find(([c,a])=>c===r.cc && a===r.area);
+  const ccSelVal = ccMatch ? ccMatch[0]+'|'+ccMatch[1] : (r.cc ? 'custom' : '');
+  const ccOpts = [
+    ['','Selecionar...'],
+    ['E9013F2602|Marketing e Comunicacao','Marketing e Comunicacao (E9013F2602)'],
+    ['E9013F2602|DM','DM (E9013F2602)'],
+    ['E9011A2701|Presidencia','Presidencia (E9011A2701)'],
+    ['E9013F2601|Comunicacao','Comunicacao (E9013F2601)'],
+    ['custom','Outro (manual)']
+  ].map(([v,l])=>'<option value="'+v+'"'+(ccSelVal===v?' selected':'')+'>'+l+'</option>').join('');
+
+  document.getElementById('edit-modal-body').innerHTML =
+    '<div class="edit-section">'+
+      '<div class="edit-section-title">Identificacao</div>'+
+      '<div class="edit-grid">'+
+        '<div class="fi-g"><label class="fi-lbl">Data Lancamento</label><input type="date" class="fi" id="ef-dl" value="'+(r.dl||'')+'"></div>'+
+        '<div class="fi-g"><label class="fi-lbl">Status</label><select class="fi" id="ef-status">'+stOpts+'</select></div>'+
+        '<div class="fi-g"><label class="fi-lbl">RC (8 digitos)</label><input type="text" class="fi" id="ef-rc" value="'+(r.rc&&r.rc!=='-'?r.rc:'')+'" maxlength="8" oninput="validateRCField(this)" placeholder="ex: 10741416"></div>'+
+        '<div class="fi-g"><label class="fi-lbl">Pedido / OC (10 digitos)</label><input type="text" class="fi" id="ef-oc" value="'+(r.oc&&r.oc!=='-'?r.oc:'')+'" maxlength="10" oninput="validateOCField(this)" placeholder="ex: 4501094735"></div>'+
+        '<div class="fi-g full"><label class="fi-lbl">Descricao</label><input type="text" class="fi" id="ef-desc" value="'+esc(r.desc||'')+'"></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="edit-section">'+
+      '<div class="edit-section-title">Classificacao</div>'+
+      '<div class="edit-grid">'+
+        '<div class="fi-g"><label class="fi-lbl">Centro de Custo</label><select class="fi" id="ef-cc-sel" onchange="onEditCCSel()">'+ccOpts+'</select></div>'+
+        '<div class="fi-g" id="ef-cc-cw" style="display:'+(ccSelVal==='custom'?'flex':'none')+'"><label class="fi-lbl">Codigo CC</label><input type="text" class="fi" id="ef-cc-custom" value="'+(ccMatch?'':r.cc||'')+'"></div>'+
+        '<div class="fi-g"><label class="fi-lbl">Area</label><input type="text" class="fi" id="ef-area" value="'+(r.area||'')+'" '+(ccSelVal&&ccSelVal!=='custom'?'readonly':'')+' placeholder="ex: Marketing e Comunicacao"></div>'+
+        '<div class="fi-g"><label class="fi-lbl">Responsavel</label><select class="fi" id="ef-resp">'+respOpts+'</select></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="edit-section">'+
+      '<div class="edit-section-title">Financeiro e Documento</div>'+
+      '<div class="edit-grid">'+
+        '<div class="fi-g"><label class="fi-lbl">Valor (R$)</label><input type="number" class="fi" id="ef-valor" step="0.01" value="'+(r.valor||'')+'"></div>'+
+        '<div class="fi-g"><label class="fi-lbl">Tipo de Documento</label><select class="fi" id="ef-tipo"><option value="">Selecionar...</option>'+tipoOpts+'</select></div>'+
+        '<div class="fi-g"><label class="fi-lbl">Data de Pagamento</label><input type="date" class="fi" id="ef-dpgto" value="'+(r.dp||'')+'"></div>'+
+        '<div class="fi-g"><label class="fi-lbl">Cod Fornecedor</label><input type="text" class="fi" id="ef-codforn" value="'+(r.codforn||'')+'" placeholder="ex: 1000022306"></div>'+
+        '<div class="fi-g full"><label class="fi-lbl">Fornecedor</label><input type="text" class="fi" id="ef-forn" value="'+esc(r.forn||'')+'"></div>'+
+        '<div class="fi-g"><label class="fi-lbl">Cod Chamado SN</label><input type="text" class="fi" id="ef-sn" value="'+(r.sn||'')+'"></div>'+
+        '<div class="fi-g"><label class="fi-lbl">N Documento</label><input type="text" class="fi" id="ef-ndoc" value="'+(r.ndoc||'')+'"></div>'+
+        '<div class="fi-g full"><label class="fi-lbl">Observacoes</label><textarea class="ft" id="ef-obs">'+esc(r.obs||'')+'</textarea></div>'+
+      '</div>'+
+    '</div>';
+
+  openOv('ov-edit');
+}
+
+function onEditCCSel(){
+  const v = document.getElementById('ef-cc-sel').value;
+  const cw = document.getElementById('ef-cc-cw');
+  const ar = document.getElementById('ef-area');
+  if(!cw||!ar)return;
+  if(v==='custom'){cw.style.display='flex';ar.value='';ar.removeAttribute('readonly');}
+  else if(v){const p=v.split('|');ar.value=p[1]||'';ar.setAttribute('readonly','');cw.style.display='none';}
+  else{cw.style.display='none';ar.value='';ar.setAttribute('readonly','');}
+}
+
+function saveEdit(){
+  const gv=id=>{const e=document.getElementById(id);return e?e.value.trim():'';}
+  // Validate
+  const rcEl=document.getElementById('ef-rc'); if(rcEl&&!validateRCField(rcEl))return;
+  const ocEl=document.getElementById('ef-oc'); if(ocEl&&!validateOCField(ocEl))return;
+
+  const ccSel=gv('ef-cc-sel');
+  let cc=null, area=gv('ef-area')||null;
+  if(ccSel==='custom') cc=gv('ef-cc-custom')||null;
+  else if(ccSel) cc=ccSel.split('|')[0];
+
+  const dlVal=gv('ef-dl')||null;
+  const dpVal=gv('ef-dpgto')||null;
+  let ano=null, mes=null;
+  if(dlVal){const m=dlVal.match(/^(\d{4})-(\d{2})/);if(m){ano=m[1];mes=parseInt(m[2]);}}
+
+  const idx=data.findIndex(r=>r._id===editingId); if(idx<0)return;
+  const old={...data[idx]};
+  const nd=new Date().toLocaleDateString('pt-BR');
+
+  data[idx]={
+    ...data[idx],
+    dl:dlVal, rc:gv('ef-rc')||null,
+    oc:gv('ef-oc')||null,
+    cc, area,
+    desc:gv('ef-desc')||data[idx].desc,
+    valor:parseFloat(gv('ef-valor'))||data[idx].valor,
+    codforn:gv('ef-codforn')||null,
+    forn:gv('ef-forn')||null,
+    status:gv('ef-status')||data[idx].status,
+    tipo:gv('ef-tipo')||null,
+    sn:gv('ef-sn')||null,
+    ndoc:gv('ef-ndoc')||null,
+    dp:dpVal,
+    obs:document.getElementById('ef-obs')?.value.trim()||null,
+    _resp:gv('ef-resp')||data[idx]._resp,
+    _ano:ano||data[idx]._ano,
+    _mes:mes||data[idx]._mes
+  };
+
+  if(!data[idx]._audit) data[idx]._audit=[];
+  const changes=[];
+  if(old.status!==data[idx].status) changes.push('Status: '+old.status+' => '+data[idx].status);
+  if(old.valor!==data[idx].valor) changes.push('Valor: R$'+old.valor+' => R$'+data[idx].valor);
+  if(changes.length) data[idx]._audit.push({dt:nd,msg:changes.join(' | ')});
+  else data[idx]._audit.push({dt:nd,msg:'Registro editado'});
+
+  saveState();
+  closeOv('ov-edit');
+  applyFilters();
+  toast('Registro salvo');
 }
 
 function selectType(type){
@@ -1055,7 +1212,7 @@ function goToStep(n, skipAnim){
   const back = document.getElementById('wz-back');
   const next = document.getElementById('wz-next');
   back.style.display = n>1 ? 'flex' : 'none';
-  next.textContent = n===3 ? '&#10003; Salvar' : 'Continuar &#8594;';
+  next.textContent = n===3 ? 'Salvar' : 'Continuar';
   if(n===1) document.getElementById('wz-progress').style.display = 'none';
 }
 
