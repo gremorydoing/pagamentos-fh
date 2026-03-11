@@ -262,6 +262,22 @@ tr.arch td:first-child{border-left:3px solid var(--rd)}
 .edit-section{margin-bottom:16px}
 .edit-section-title{font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--br)}
 .fi-g select.fi{width:100%}
+
+/* INLINE EDIT */
+.ie-wrap{position:relative;cursor:pointer;border-radius:5px;padding:2px 4px;margin:-2px -4px;transition:background .12s}
+.ie-wrap:hover{background:var(--acs)}
+.ie-wrap:hover::after{content:'✎';font-size:9px;color:var(--ac);margin-left:4px;opacity:.7}
+.ie-sel{background:var(--bg);border:1px solid var(--ac);border-radius:6px;padding:3px 6px;color:var(--tx);font-family:var(--fn);font-size:12px;outline:none;cursor:pointer;width:100%;min-width:140px}
+.ie-ta{background:var(--bg);border:1px solid var(--ac);border-radius:6px;padding:4px 7px;color:var(--tx);font-family:var(--fn);font-size:12px;outline:none;resize:vertical;width:160px;min-height:54px}
+.ie-date{background:var(--bg);border:1px solid var(--ac);border-radius:6px;padding:3px 6px;color:var(--tx);font-family:var(--fn);font-size:12px;outline:none}
+/* Context menu */
+.ctx-btn{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.ctx-menu{position:absolute;right:0;top:100%;background:var(--sf);border:1px solid var(--br2);border-radius:10px;padding:4px;z-index:100;min-width:140px;box-shadow:var(--sh);display:none;flex-direction:column;gap:2px}
+.ctx-btn:focus-within .ctx-menu,.ctx-menu:hover{display:flex}
+.ctx-item{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:7px;font-size:12px;cursor:pointer;transition:background .12s;white-space:nowrap;border:none;background:transparent;color:var(--tx);font-family:var(--fn);width:100%;text-align:left}
+.ctx-item:hover{background:var(--sf2)}
+.ctx-item.danger:hover{background:rgba(255,63,94,.12);color:var(--rd)}
+.ctx-item.restore:hover{background:rgba(30,201,122,.12);color:var(--gr)}
 </style>
 </head>
 <body data-theme="dark">
@@ -647,7 +663,7 @@ function buildSelects(){
   fillSel('t-cc',ccs); fillSel('k-cc',ccs); fillSel('d-cc',ccs);
   fillSel('t-tipo',tipos);
 }
-function fillSel(id,vals){const s=document.getElementById(id);if(!s)return;vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});}
+function fillSel(id,vals){const s=document.getElementById(id);if(!s)return;while(s.options.length>1)s.remove(1);vals.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});}
 
 // ── DATE NAVIGATOR ──────────────────────────────────────────────────────
 // Hierarchical: select year first, then months for that year light up
@@ -821,6 +837,64 @@ function checkAlerts(){
 }
 
 // ── TABLE ───────────────────────────────────────────────────────────────
+// ── INLINE EDIT HELPERS ─────────────────────────────────────────────────
+function ieStatus(id){
+  const r=data.find(x=>x._id===id); if(!r)return;
+  const cell=document.getElementById('ie-st-'+id); if(!cell)return;
+  const sel=document.createElement('select');
+  sel.className='ie-sel';
+  STATUS_ORDER.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(r.status===s)o.selected=true;sel.appendChild(o);});
+  sel.onchange=()=>{
+    const nd=new Date().toLocaleDateString('pt-BR');
+    const old=r.status; r.status=sel.value;
+    if(!r._audit)r._audit=[];
+    r._audit.push({dt:nd,msg:'Status: '+old+' => '+r.status});
+    saveState(); applyFilters(); toast('Status atualizado');
+  };
+  sel.onblur=()=>applyFilters();
+  cell.innerHTML=''; cell.appendChild(sel); sel.focus();
+}
+function ieResp(id){
+  const r=data.find(x=>x._id===id); if(!r)return;
+  const cell=document.getElementById('ie-rp-'+id); if(!cell)return;
+  const RESPS=[['Isabella Robaina','Bella'],['Isabela Comparoni','Isa'],['Eduardo Bertelli','Du/Edu'],['Julia Magalhaes','Ju']];
+  const sel=document.createElement('select');
+  sel.className='ie-sel';
+  const blank=document.createElement('option');blank.value='';blank.textContent='—';sel.appendChild(blank);
+  RESPS.forEach(([v,a])=>{const o=document.createElement('option');o.value=v;o.textContent=v.split(' ')[0]+' ('+a+')';if(r._resp===v)o.selected=true;sel.appendChild(o);});
+  sel.onchange=()=>{r._resp=sel.value||null;saveState();applyFilters();toast('Responsavel atualizado');};
+  sel.onblur=()=>applyFilters();
+  cell.innerHTML=''; cell.appendChild(sel); sel.focus();
+}
+function ieObs(id){
+  const r=data.find(x=>x._id===id); if(!r)return;
+  const cell=document.getElementById('ie-ob-'+id); if(!cell)return;
+  const ta=document.createElement('textarea');
+  ta.className='ie-ta'; ta.value=r.obs||'';
+  ta.onblur=()=>{
+    const nd=new Date().toLocaleDateString('pt-BR');
+    r.obs=ta.value.trim()||null;
+    r._audit=r._audit||[];
+    r._audit.push({dt:nd,msg:'Observacao atualizada'});
+    saveState(); applyFilters(); toast('Obs salva');
+  };
+  ta.onkeydown=e=>{if(e.key==='Escape')applyFilters();};
+  cell.innerHTML=''; cell.appendChild(ta); ta.focus();
+}
+function ieDp(id){
+  const r=data.find(x=>x._id===id); if(!r)return;
+  const cell=document.getElementById('ie-dp-'+id); if(!cell)return;
+  const inp=document.createElement('input');
+  inp.type='date'; inp.className='ie-date'; inp.value=r.dp||'';
+  inp.onchange=()=>{
+    r.dp=inp.value||null;
+    if(r.dp){const m=r.dp.match(/^(\d{4})-(\d{2})/);if(m&&!r._ano){r._ano=m[1];r._mes=parseInt(m[2]);}}
+    saveState(); applyFilters(); toast('Data de pagamento atualizada');
+  };
+  inp.onblur=()=>setTimeout(()=>applyFilters(),200);
+  cell.innerHTML=''; cell.appendChild(inp); inp.focus();
+}
+
 function renderTable(){
   const tbody = document.getElementById('t-body');
   const empty = document.getElementById('t-empty');
@@ -828,13 +902,12 @@ function renderTable(){
   empty.style.display='none';
   tbody.innerHTML = filtered.map(r=>{
     const s = ST[r.status]||{bg:'rgba(100,112,139,.1)',c:'#94a3b8',d:'#94a3b8'};
-    const rc = RESP_CLR[r._resp]||{bg:'#334155',t:'#94a3b8'};
+    const rc2 = RESP_CLR[r._resp]||{bg:'#334155',t:'#94a3b8'};
     const ini = r._resp ? r._resp.split(' ').map(w=>w[0]).slice(0,2).join('') : '?';
     const stLbl = (r.status||'').replace(/^\d+\s*-?\s*/,'');
-    const obsHtml = r.obs ? '<div class="co" title="'+esc(r.obs)+'">'+esc(r.obs)+'</div>' : '<span style="color:var(--mu)">&#8212;</span>';
-    const archBtn = r._archived
-      ? '<button class="ib sm restore" onclick="askRestore('+r._id+')" title="Restaurar">&#9851;&#65039;</button>'
-      : '<button class="ib sm" onclick="askArch('+r._id+')" title="Arquivar" style="font-size:11px">&#128194;</button>';
+    const archItem = r._archived
+      ? '<button class="ctx-item restore" onclick="askRestore('+r._id+')">&#9851;&#65039; Restaurar</button>'
+      : '<button class="ctx-item danger" onclick="askArch('+r._id+')">&#128194; Arquivar</button>';
     return '<tr class="'+(r._archived?'arch':'')+'">'+
       '<td class="mo">'+(r.dl||'&#8212;')+'</td>'+
       '<td class="mo">'+(r.rc||'&#8212;')+'</td>'+
@@ -842,15 +915,26 @@ function renderTable(){
       '<td title="'+esc(r.forn||'')+'"><div class="cf">'+esc(r.forn||'&#8212;')+'</div></td>'+
       '<td><span class="vl">'+fmtRD(r.valor)+'</span></td>'+
       '<td style="font-size:12px;color:var(--mu)">'+(r.area||'&#8212;')+'</td>'+
-      '<td><span class="badge" style="background:'+s.bg+';color:'+s.c+'"><span class="bd2" style="background:'+s.d+'"></span>'+stLbl+'</span></td>'+
-      '<td>'+(r._resp?'<div style="display:flex;align-items:center;gap:5px"><span class="av" style="background:'+rc.bg+';color:'+rc.t+'">'+ini+'</span><span style="font-size:12px">'+r._resp.split(' ')[0]+'</span></div>':'&#8212;')+'</td>'+
+      // STATUS — inline edit on click
+      '<td id="ie-st-'+r._id+'"><span class="ie-wrap badge" style="background:'+s.bg+';color:'+s.c+'" onclick="ieStatus('+r._id+')" title="Clique para editar status"><span class="bd2" style="background:'+s.d+'"></span>'+stLbl+'</span></td>'+
+      // RESP — inline edit on click
+      '<td id="ie-rp-'+r._id+'">'+(r._resp
+        ? '<div class="ie-wrap" onclick="ieResp('+r._id+')" title="Clique para editar responsavel" style="display:inline-flex;align-items:center;gap:5px"><span class="av" style="background:'+rc2.bg+';color:'+rc2.t+'">'+ini+'</span><span style="font-size:12px">'+r._resp.split(' ')[0]+'</span></div>'
+        : '<span class="ie-wrap" onclick="ieResp('+r._id+')" style="color:var(--mu);font-size:12px">+ Atribuir</span>'
+      )+'</td>'+
       '<td style="color:var(--mu);font-size:12px">'+(r.tipo||'&#8212;')+'</td>'+
-      '<td class="mo">'+(r.dp||'&#8212;')+'</td>'+
-      '<td>'+obsHtml+'</td>'+
-      '<td><div style="display:flex;gap:4px">'+
-        '<button class="ib sm" onclick="openDetail('+r._id+')" title="Ver">&#128065;</button>'+
-        '<button class="ib sm" onclick="openWizard(\'edit\','+r._id+')" title="Editar">&#9999;&#65039;</button>'+
-        archBtn+
+      // DATA PGTO — inline edit on click
+      '<td id="ie-dp-'+r._id+'"><span class="ie-wrap mo" onclick="ieDp('+r._id+')" title="Clique para editar data">'+(r.dp||'<span style="color:var(--mu)">+ Data</span>')+'</span></td>'+
+      // OBS — inline edit on click
+      '<td id="ie-ob-'+r._id+'"><span class="ie-wrap" onclick="ieObs('+r._id+')" title="Clique para editar obs" style="display:block;min-width:60px">'+(r.obs?'<span class="co">'+esc(r.obs)+'</span>':'<span style="color:var(--mu);font-size:12px">+ Obs</span>')+'</span></td>'+
+      // ACTIONS — context menu
+      '<td><div class="ctx-btn" tabindex="0">'+
+        '<button class="ib sm" style="font-size:16px;letter-spacing:1px" title="Acoes">&#8943;</button>'+
+        '<div class="ctx-menu">'+
+          '<button class="ctx-item" onclick="openDetail('+r._id+')">&#128065; Ver detalhes</button>'+
+          '<button class="ctx-item" onclick="openEditModal('+r._id+')">&#9999;&#65039; Editar completo</button>'+
+          archItem+
+        '</div>'+
       '</div></td>'+
     '</tr>';
   }).join('');
@@ -1637,6 +1721,18 @@ async function appInit(){
 }
 
 // Entry point — check existing session first
+(async function bootstrap(){
+  applyTheme((function(){try{return localStorage.getItem('fh-theme')||'dark';}catch(e){return 'dark';}})()); 
+  const valid = await checkSession();
+  if(valid){
+    onLoginSuccess();
+  }
+  // else: login screen stays visible, waiting for user input
+})();
+
+</script>
+</body>
+</html// Entry point — check existing session first
 (async function bootstrap(){
   applyTheme((function(){try{return localStorage.getItem('fh-theme')||'dark';}catch(e){return 'dark';}})()); 
   const valid = await checkSession();
