@@ -108,8 +108,8 @@ table{width:100%;border-collapse:collapse;table-layout:fixed}
 col.c-dl{width:96px}col.c-rc{width:100px}col.c-desc{width:auto}col.c-forn{width:160px}
 col.c-val{width:100px}col.c-area{width:110px}col.c-st{width:170px}col.c-resp{width:110px}
 col.c-tipo{width:82px}col.c-dp{width:94px}col.c-obs{width:130px}col.c-act{width:46px}
-thead{position:sticky;top:0;z-index:10}
-th{background:var(--sf2);padding:9px 11px;text-align:left;font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--br);white-space:nowrap;cursor:pointer;user-select:none;transition:color .13s}
+thead{position:sticky;top:0;z-index:20}
+th{background:var(--sf2);padding:9px 11px;text-align:left;font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--br);white-space:nowrap;cursor:pointer;user-select:none;transition:color .13s;position:relative;overflow:visible}
 th:hover{color:var(--tx);background:var(--sf3)}
 th.sorted{color:var(--ac)}
 th span.sort-arrow{font-size:9px;opacity:.4;margin-left:3px;transition:opacity .13s}
@@ -346,6 +346,11 @@ tr.arch td:first-child{border-left:3px solid var(--rd)}
 .imp-map-csv{color:var(--mu);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .imp-map-arrow{color:var(--mu);flex-shrink:0}
 .imp-map-field{flex:1}
+
+/* COLUMN RESIZE */
+.col-resizer{position:absolute;right:-3px;top:0;bottom:0;width:8px;cursor:col-resize;z-index:50;user-select:none;background:transparent;transition:background .15s}
+.col-resizer:hover,.col-resizer.dragging{background:var(--ac);opacity:1;border-radius:2px}
+th.resizing{user-select:none}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"></script>
@@ -394,6 +399,7 @@ tr.arch td:first-child{border-left:3px solid var(--rd)}
       <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Exportar
     </button>
+    <button class="ib" onclick="resetColWidths()" title="Restaurar largura das colunas" style="font-size:13px">&#8644;</button>
     <button class="btn bg" onclick="openImport()" style="font-size:12px">
       <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       Importar CSV
@@ -436,17 +442,17 @@ tr.arch td:first-child{border-left:3px solid var(--rd)}
   <col class="c-tipo"><col class="c-dp"><col class="c-obs"><col class="c-act">
 </colgroup>
 <thead><tr>
-        <th onclick="sortBy('dl')">Data<span id="si-dl" class="sort-arrow">↕</span></th>
-        <th onclick="sortBy('rc')">RC<span id="si-rc" class="sort-arrow">↕</span></th>
-        <th onclick="sortBy('desc')">Descricao<span id="si-desc" class="sort-arrow">↕</span></th>
-        <th onclick="sortBy('forn')">Fornecedor<span id="si-forn" class="sort-arrow">↕</span></th>
-        <th onclick="sortBy('valor')">Valor<span id="si-val" class="sort-arrow">↕</span></th>
-        <th onclick="sortBy('area')">Area<span id="si-area" class="sort-arrow">↕</span></th>
-        <th onclick="sortBy('status')">Status<span id="si-st" class="sort-arrow">↕</span></th>
-        <th onclick="sortBy('_resp')">Resp.<span id="si-resp" class="sort-arrow">↕</span></th>
-        <th onclick="sortBy('tipo')">Tipo<span id="si-tipo" class="sort-arrow">↕</span></th>
-        <th onclick="sortBy('dp')">Pgto<span id="si-pgto" class="sort-arrow">↕</span></th>
-        <th onclick="sortBy('obs')">Obs<span id="si-obs" class="sort-arrow">↕</span></th>
+        <th id="th-dl" onclick="sortBy('dl')">Data<span id="si-dl" class="sort-arrow">↕</span><span class="col-resizer" onmousedown="startResize(event,'th-dl')"></span></th>
+        <th id="th-rc" onclick="sortBy('rc')">RC<span id="si-rc" class="sort-arrow">↕</span><span class="col-resizer" onmousedown="startResize(event,'th-rc')"></span></th>
+        <th id="th-desc" onclick="sortBy('desc')">Descricao<span id="si-desc" class="sort-arrow">↕</span><span class="col-resizer" onmousedown="startResize(event,'th-desc')"></span></th>
+        <th id="th-forn" onclick="sortBy('forn')">Fornecedor<span id="si-forn" class="sort-arrow">↕</span><span class="col-resizer" onmousedown="startResize(event,'th-forn')"></span></th>
+        <th id="th-val" onclick="sortBy('valor')">Valor<span id="si-val" class="sort-arrow">↕</span><span class="col-resizer" onmousedown="startResize(event,'th-val')"></span></th>
+        <th id="th-area" onclick="sortBy('area')">Area<span id="si-area" class="sort-arrow">↕</span><span class="col-resizer" onmousedown="startResize(event,'th-area')"></span></th>
+        <th id="th-st" onclick="sortBy('status')">Status<span id="si-st" class="sort-arrow">↕</span><span class="col-resizer" onmousedown="startResize(event,'th-st')"></span></th>
+        <th id="th-resp" onclick="sortBy('_resp')">Resp.<span id="si-resp" class="sort-arrow">↕</span><span class="col-resizer" onmousedown="startResize(event,'th-resp')"></span></th>
+        <th id="th-tipo" onclick="sortBy('tipo')">Tipo<span id="si-tipo" class="sort-arrow">↕</span><span class="col-resizer" onmousedown="startResize(event,'th-tipo')"></span></th>
+        <th id="th-dp" onclick="sortBy('dp')">Pgto<span id="si-pgto" class="sort-arrow">↕</span><span class="col-resizer" onmousedown="startResize(event,'th-dp')"></span></th>
+        <th id="th-obs" onclick="sortBy('obs')">Obs<span id="si-obs" class="sort-arrow">↕</span><span class="col-resizer" onmousedown="startResize(event,'th-obs')"></span></th>
         <th style="cursor:default">Acoes</th>
       </tr></thead>
       <tbody id="t-body"></tbody>
@@ -783,6 +789,87 @@ let curYear = 'all', curMon = 'all';
 let dashYear = 'all', dashMon = 'all';
 let editId = null, archId = null, archRestore = false, detailId = null;
 let budgets = {};
+
+
+// ── COLUMN RESIZE ────────────────────────────────────────────────────
+// Default widths in px — used when no saved preference exists
+const COL_DEFAULTS = {
+  'th-dl':96,'th-rc':100,'th-desc':220,'th-forn':160,
+  'th-val':100,'th-area':110,'th-st':170,'th-resp':110,
+  'th-tipo':82,'th-dp':94,'th-obs':130
+};
+const COL_MIN = 48; // minimum column width in px
+
+// Load saved widths from localStorage (per-user, never synced)
+function loadColWidths(){
+  try{
+    const saved = JSON.parse(localStorage.getItem('fh-col-widths')||'{}');
+    Object.entries({...COL_DEFAULTS,...saved}).forEach(([id,w])=>{
+      const th = document.getElementById(id);
+      if(th) th.style.width = w+'px';
+    });
+  }catch(e){}
+}
+
+function saveColWidths(){
+  try{
+    const widths = {};
+    Object.keys(COL_DEFAULTS).forEach(id=>{
+      const th = document.getElementById(id);
+      if(th) widths[id] = th.offsetWidth;
+    });
+    localStorage.setItem('fh-col-widths', JSON.stringify(widths));
+  }catch(e){}
+}
+
+function resetColWidths(){
+  try{localStorage.removeItem('fh-col-widths');}catch(e){}
+  Object.entries(COL_DEFAULTS).forEach(([id,w])=>{
+    const th = document.getElementById(id);
+    if(th) th.style.width = w+'px';
+  });
+  toast('Colunas restauradas ao padrao');
+}
+
+// Resize logic — tracks mouse from mousedown on .col-resizer
+let _resizeThId = null;
+let _resizeStartX = 0;
+let _resizeStartW = 0;
+
+function startResize(e, thId){
+  e.preventDefault();
+  e.stopPropagation(); // prevent sortBy from firing
+  _resizeThId = thId;
+  const th = document.getElementById(thId);
+  _resizeStartX = e.clientX;
+  _resizeStartW = th.offsetWidth;
+  th.classList.add('resizing');
+  // Find and mark the resizer handle
+  const handle = e.target;
+  handle.classList.add('dragging');
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+
+  function onMove(ev){
+    const delta = ev.clientX - _resizeStartX;
+    const newW  = Math.max(COL_MIN, _resizeStartW + delta);
+    document.getElementById(_resizeThId).style.width = newW+'px';
+  }
+
+  function onUp(){
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.getElementById(_resizeThId)?.classList.remove('resizing');
+    handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    saveColWidths(); // persist preference for this user
+    _resizeThId = null;
+  }
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
 
 // ── THEME ───────────────────────────────────────────────────────────────
 function applyTheme(t){
@@ -2192,6 +2279,7 @@ async function appInit(){
   buildFuse();
   buildSelects();
   buildDateNav();
+  loadColWidths();
   applyFilters();
   checkAlerts();
   setInterval(async()=>{
