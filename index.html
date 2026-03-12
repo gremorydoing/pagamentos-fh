@@ -194,14 +194,14 @@ tr.arch td:first-child{border-left:3px solid var(--rd)}
 .cc{background:var(--sf);border:1px solid var(--br);border-radius:12px;padding:17px;overflow:hidden}
 .ct{font-size:13px;font-weight:600;margin-bottom:3px}
 .cs{font-size:11px;color:var(--mu);margin-bottom:15px}
-.br-row{display:flex;align-items:center;gap:9px;margin-bottom:8px}
-.bl{font-size:12px;width:130px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bt{flex:1;height:7px;background:var(--sf2);border-radius:4px;overflow:hidden}
-.bf{height:100%;border-radius:4px;transition:width .45s ease}
+
+
+
+
 .bv{font-size:11px;font-family:var(--mo);color:var(--mu);width:90px;text-align:right;flex-shrink:0}
-.pl{display:flex;flex-direction:column;gap:7px}
-.pi{display:flex;align-items:center;gap:7px;font-size:12px}
-.pdot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+
+
+
 .sl{display:flex;flex-direction:column}
 .sr{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--br)}
 .sr:last-child{border-bottom:none}
@@ -280,7 +280,18 @@ tr.arch td:first-child{border-left:3px solid var(--rd)}
 .ctx-item:hover{background:var(--sf2)}
 .ctx-item.danger:hover{background:rgba(255,63,94,.12);color:var(--rd)}
 .ctx-item.restore:hover{background:rgba(30,201,122,.12);color:var(--gr)}
+
+/* CHART CARDS */
+.chart-canvas-wrap{position:relative;width:100%;height:260px}
+.chart-canvas-wrap.tall{height:320px}
+.chart-canvas-wrap.short{height:200px}
+.dash-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+.dash-kpi{background:var(--sf);border:1px solid var(--br);border-radius:12px;padding:14px 16px}
+.dash-kpi-lbl{font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.dash-kpi-val{font-size:22px;font-weight:700;line-height:1}
+.dash-kpi-sub{font-size:11px;color:var(--mu);margin-top:3px}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body data-theme="dark">
 
@@ -523,6 +534,49 @@ async function sbFetch(method,body){const res=await fetch(SB_URL+"/rest/v1/pagam
 
 const DATA_RAW = [{"dl": "2025-10-30", "rc": "10727901", "oc": "4501030237", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Taxa de Participacao Sealba 2026", "valor": 24851.2, "codforn": "1000018020", "forn": "FEDERACAO DA AGRICULTURA E PECUARIA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": null, "ndoc": null, "dp": "2025-12-17", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 10, "_id": 0, "_archived": false, "_audit": []}, {"dl": "2025-11-04", "rc": "10728263", "oc": "4501036901", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Taxa de Participacao Femagri 2026", "valor": 22082.72, "codforn": "1000006927", "forn": "COOPERATIVA REGIONAL DE CAFEICULTORES EM GUAXUPE", "resppgto": null, "status": "10 - Pago", "tipo": "Nota de Debito", "sn": null, "ndoc": "5100053870", "dp": "2025-12-17", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 11, "_id": 1, "_archived": false, "_audit": []}, {"dl": "2025-11-07", "rc": "10729171", "oc": "4501041948", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Custos INPI - ICAMP - Registro de marca FH", "valor": 10560.0, "codforn": "1000018944", "forn": "ICAMP MARCAS E PATENTES LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "Nota de Debito", "sn": null, "ndoc": null, "dp": "2025-12-03", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 11, "_id": 2, "_archived": false, "_audit": []}, {"dl": "2025-11-07", "rc": "10729171", "oc": "4501041948", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Honorarios - ICAMP - Registro de marca FH", "valor": 21360.0, "codforn": "1000018944", "forn": "ICAMP MARCAS E PATENTES LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": null, "ndoc": null, "dp": "2025-12-03", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 11, "_id": 3, "_archived": false, "_audit": []}, {"dl": "2025-11-14", "rc": "10729862", "oc": "4501043239", "cc": "E9011A2701", "area": "Presidencia", "desc": "Encontro Comercial FH 2026 - Adiantamento", "valor": 32020.0, "codforn": "1000018533", "forn": "VITORIA HOTEIS LTDA PAULINIA SP", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": null, "ndoc": null, "dp": "2025-12-03", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 11, "_id": 4, "_archived": false, "_audit": []}, {"dl": "2025-11-14", "rc": "10729826", "oc": "4501042154", "cc": "E9011A2701", "area": "Presidencia", "desc": "Mochilas FH - Via Legitima", "valor": 15114.0, "codforn": "1000003976", "forn": "LEGITIMA COMUNICACAO INTEGRADA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0270815", "ndoc": "5100052746", "dp": "2025-12-10", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 11, "_id": 5, "_archived": false, "_audit": []}, {"dl": "2025-11-14", "rc": "10729831", "oc": "4501042149", "cc": "E9011A2701", "area": "Presidencia", "desc": "Uniformes FH 2026", "valor": 30840.0, "codforn": "1000028346", "forn": "MZ UNIFORMES E CONFECCOES LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": null, "ndoc": "5100050744", "dp": "2025-12-02", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 11, "_id": 6, "_archived": false, "_audit": []}, {"dl": "2025-11-14", "rc": "10729931", "oc": "4501049899", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Compra de brindes - Moleskine canetas e ecobag", "valor": 34840.0, "codforn": "1000022710", "forn": "SHOWME GIFTS CORPORATE BRINDES LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "Danfe", "sn": "RITM0271029", "ndoc": "5100053433", "dp": "2025-12-17", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 11, "_id": 7, "_archived": false, "_audit": []}, {"dl": "2025-11-14", "rc": "10729871", "oc": "4501042150", "cc": "E9011A2701", "area": "Presidencia", "desc": "Compra de brindes - Caderno da convencao", "valor": 2775.0, "codforn": "1000022710", "forn": "SHOWME GIFTS CORPORATE BRINDES LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "Danfe", "sn": null, "ndoc": "5100050938", "dp": "2025-12-03", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 11, "_id": 8, "_archived": false, "_audit": []}, {"dl": "2025-11-14", "rc": "10729876", "oc": "4501042151", "cc": "E9011A2701", "area": "Presidencia", "desc": "Producao e apoio Encontro Comercial FH", "valor": 3900.0, "codforn": "1000021809", "forn": "BELETTI E PEREIRA SERVICOS SS LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0270897", "ndoc": "5100053099", "dp": "2025-12-10", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 11, "_id": 9, "_archived": false, "_audit": []}, {"dl": "2025-11-14", "rc": "10729882", "oc": "4501049910", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Compra de brindes - Bones FH", "valor": 28160.0, "codforn": "1000028423", "forn": "PROCAPS BRINDES E CONFECCOES LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "Danfe", "sn": "RITM0270866", "ndoc": "5100056513", "dp": "2025-12-29", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 11, "_id": 10, "_archived": false, "_audit": []}, {"dl": "2025-11-14", "rc": "10729913", "oc": "4501049948", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Compras brindes - Chapeu de fibra", "valor": 28000.0, "codforn": "1000028390", "forn": "CLEMIR JOAO SCHEIN LTDA AFFACAS", "resppgto": null, "status": "10 - Pago", "tipo": "Danfe", "sn": "RITM0270989", "ndoc": "5100056296", "dp": "2025-12-23", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 11, "_id": 11, "_archived": false, "_audit": []}, {"dl": "2025-11-18", "rc": "10730519", "oc": "4501049081", "cc": "E9011A2701", "area": "Presidencia", "desc": "Encontro Comercial FH - Cenografia som e equipamentos", "valor": 60000.0, "codforn": "1000020113", "forn": "INFINIT PROMOCOES E PRODUCOES", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0271689", "ndoc": "5100054408", "dp": "2025-12-17", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 11, "_id": 12, "_archived": false, "_audit": []}, {"dl": "2025-11-24", "rc": "10730902", "oc": "4501049587", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Compra de brindes FH 2026 - Squeeze p Sergio", "valor": 9555.0, "codforn": "1000022710", "forn": "SHOWME GIFTS CORPORATE BRINDES LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "Danfe", "sn": "RITM0271029", "ndoc": "5100053436", "dp": "2025-12-17", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 11, "_id": 13, "_archived": false, "_audit": []}, {"dl": "2025-11-24", "rc": "10730903", "oc": "4501049588", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Compra de brindes FH 2026 - Sacolas papel", "valor": 4400.0, "codforn": "1000003976", "forn": "LEGITIMA COMUNICACAO INTEGRADA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0270812", "ndoc": "5100052743", "dp": "2025-12-10", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 11, "_id": 14, "_archived": false, "_audit": []}, {"dl": "2025-11-24", "rc": "10730905", "oc": "4501056217", "cc": "E6013F2613", "area": "DM", "desc": "Taxa de Participacao - Dias de Conhecimento Cooxupe", "valor": 28400.0, "codforn": "1000006927", "forn": "COOPERATIVA REGIONAL DE CAFEICULTORES", "resppgto": null, "status": "10 - Pago", "tipo": "Nota de Debito", "sn": null, "ndoc": "5100172426", "dp": "2025-12-29", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 11, "_id": 15, "_archived": false, "_audit": []}, {"dl": "2025-11-21", "rc": "10730452", "oc": "4501049860", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Rebrand FH 2026", "valor": 23980.0, "codforn": "1000003976", "forn": "LEGITIMA COMUNICACAO INTEGRADA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0270814", "ndoc": "5100052745", "dp": "2025-12-10", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 11, "_id": 16, "_archived": false, "_audit": []}, {"dl": "2025-11-24", "rc": "10730448", "oc": "4501049022", "cc": "E9013F2601", "area": "Comunicacao", "desc": "Projeto Comunicacao Integrada FH 2026", "valor": 60000.0, "codforn": "1000022306", "forn": "APPROACH COMUNICACAO INTEGRADA LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0271247", "ndoc": "5100053509", "dp": "2025-12-17", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 11, "_id": 17, "_archived": false, "_audit": []}, {"dl": "2025-11-25", "rc": "10730974", "oc": "4501051885", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Custos projetos Heringer - Materiais institucionais", "valor": 30000.0, "codforn": "1000003976", "forn": "LEGITIMA COMUNICACAO INTEGRADA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0270891", "ndoc": "5100053041", "dp": "2025-12-10", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 11, "_id": 18, "_archived": false, "_audit": []}, {"dl": "2025-11-16", "rc": "10729655", "oc": "4501049819", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Pagamento de Midia de Novembro", "valor": 26384.39, "codforn": "1000020106", "forn": "MC4 MARKETING E NEGOCIOS DIGITAIS", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0271334", "ndoc": "5100053954", "dp": "2025-12-17", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 11, "_id": 19, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10731115", "oc": "4501056219", "cc": "E6013F2613", "area": "DM", "desc": "Compra materiais de campo Heringer 2026 - 12 tendas 3x3", "valor": 13921.44, "codforn": "1000027253", "forn": "MAC PRODUTOS PROMOCIONAIS LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "Danfe", "sn": "RITM0272405", "ndoc": "5100168946", "dp": "2025-12-23", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 12, "_id": 20, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10731181", "oc": "4501061509", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Anuncio Heringer Anuario Capixaba 2026", "valor": 5000.0, "codforn": "1000028554", "forn": "CONTEXTO CONSULTORIA E PROJETOS LTD", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0274361", "ndoc": "5100055934", "dp": "2025-12-30", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 12, "_id": 21, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10731274", "oc": "4501056220", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Compra de brindes para relacionamento Heringer", "valor": 9555.0, "codforn": "1000022710", "forn": "SHOWME GIFTS CORPORATE BRINDES LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "Danfe", "sn": "RITM0272897", "ndoc": "5100054426", "dp": "2025-12-18", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 12, "_id": 22, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10731275", "oc": "4501055390", "cc": "E9011A2701", "area": "Presidencia", "desc": "Uniformes FH - 20 polos chumbo preto", "valor": 1140.0, "codforn": "1000028346", "forn": "MZ UNIFORMES E CONFECCOES LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0271304", "ndoc": "5100053869", "dp": "2025-12-17", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 12, "_id": 23, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10731376", "oc": "4501055670", "cc": "E9011A2701", "area": "Presidencia", "desc": "Deslocamento Hotel Vitoria ate fazenda churrascada", "valor": 2500.0, "codforn": "1000001716", "forn": "AUTO VIACAO PENHA LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0274212", "ndoc": "5108751958", "dp": "2025-12-23", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 12, "_id": 24, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10731317", "oc": "4501056222", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Motion Nutrindo Cuidados - FH", "valor": 2200.0, "codforn": "1000004766", "forn": "ME PRODUTORA AUDIOVISUAL LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0271728", "ndoc": "5100054420", "dp": "2025-12-17", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 12, "_id": 25, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10731339", "oc": "4501055669", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Viagem ME Campinas SP", "valor": 6771.5, "codforn": "1000004766", "forn": "ME PRODUTORA AUDIOVISUAL LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0271319", "ndoc": "5100053946", "dp": "2025-12-17", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 12, "_id": 26, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10731815", "oc": "4501058091", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Campanha de missao visao e valores da Fertilizantes Heringer", "valor": 41600.0, "codforn": "1000022306", "forn": "APPROACH COMUNICACAO INTEGRADA LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0273176", "ndoc": "5100054681", "dp": "2025-12-17", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 12, "_id": 27, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10731875", "oc": "4501058123", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Redesign website da Heringer Institucional", "valor": 25000.0, "codforn": "1000021090", "forn": "MZ CONSULT SERVICOS E NEGOCIOS LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0273237", "ndoc": "5100054679", "dp": "2025-12-17", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 12, "_id": 28, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10732248", "oc": "4501067930", "cc": "E9011A2701", "area": "Presidencia", "desc": "Custos Extras - MEL EVENTOS Crachas impressoes", "valor": 1250.0, "codforn": "1000021809", "forn": "BELETTI E PEREIRA SERVICOS SS LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0274773", "ndoc": "5100056285", "dp": "2025-12-23", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 12, "_id": 29, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10732344", "oc": "4501058763", "cc": "E9011A2701", "area": "Presidencia", "desc": "Entregas Uniformes para Paulinia ao Hotel Vitoria", "valor": 300.0, "codforn": "1000024035", "forn": "AF EXPRESS TRANSPORTE E LOGISTICA L", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0274070", "ndoc": "5108751477", "dp": "2025-12-23", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 12, "_id": 30, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10732342", "oc": "4501060509", "cc": "E9011A2701", "area": "Presidencia", "desc": "Cobertura de Foto do evento FH", "valor": 13500.0, "codforn": "1000018937", "forn": "GUILHERME LEMOS", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0273654", "ndoc": "5100054960", "dp": "2025-12-23", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 12, "_id": 31, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10732403", "oc": "4501061490", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "1a TENTATIVA - Producao de conteudo para site Heringer", "valor": 12000.0, "codforn": "1000021061", "forn": "PALAVRA COMUNICACAO LTDA", "resppgto": null, "status": "11 - Cancelado", "tipo": "NFe", "sn": null, "ndoc": null, "dp": null, "obs": "Cancelado - substituido por nova RC", "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 12, "_id": 32, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10732667", "oc": "4501061496", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Producao e execucao anuncio anuario revista capixaba", "valor": 5400.0, "codforn": "1000022306", "forn": "APPROACH COMUNICACAO INTEGRADA LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0274066", "ndoc": "5100055338", "dp": "2025-12-23", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 12, "_id": 33, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10733898", "oc": "4501067628", "cc": "E9011A2701", "area": "Presidencia", "desc": "Orcamento plano de comunicacao FH", "valor": 80000.0, "codforn": "1000022306", "forn": "APPROACH COMUNICACAO INTEGRADA LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0275094", "ndoc": "5100056554", "dp": "2025-12-29", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 12, "_id": 34, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10734264", "oc": "4501068304", "cc": "E9011A2701", "area": "Presidencia", "desc": "Custos extras - Evento Alinhamento estrategico na Fazenda Churrascada", "valor": 3227.28, "codforn": "1000028566", "forn": "FC CAMPINAS COMERCIO ALIMENTOS E BE", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0275212", "ndoc": "5100056654", "dp": "2025-12-29", "obs": null, "_resp": "Julia Magalhaes", "_ano": "2025", "_mes": 12, "_id": 35, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10734092", "oc": "4501067933", "cc": "E9011A2701", "area": "Presidencia", "desc": "Custos extras - Evento Alinhamento estrategico cenografia som e equipamentos", "valor": 3950.0, "codforn": "1000020113", "forn": "INFINIT PROMOCOES E PRODUCOES", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0274799", "ndoc": "5100056347", "dp": "2025-12-23", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 12, "_id": 36, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10734119", "oc": "4501068172", "cc": "E9011A2701", "area": "Presidencia", "desc": "Fechamento Hotel - Salas e Hospedagens - Evento Alinhamento Estrategico FH", "valor": 31660.75, "codforn": "1000018533", "forn": "VITORIA HOTEIS LTDA PAULINIA SP", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0275117", "ndoc": "5100056574", "dp": "2025-12-29", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 12, "_id": 37, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10734121", "oc": "4501068176", "cc": "E9011A2701", "area": "Presidencia", "desc": "Fechamento Hotel - Alimentacao e Bebidas - Evento Alinhamento Estrategico FH", "valor": 51176.5, "codforn": "1000018533", "forn": "VITORIA HOTEIS LTDA PAULINIA SP", "resppgto": null, "status": "10 - Pago", "tipo": "Danfe", "sn": "RITM0275117", "ndoc": "5100056562", "dp": "2025-12-29", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 12, "_id": 38, "_archived": false, "_audit": []}, {"dl": "2025-12-01", "rc": "10734266", "oc": "4501068289", "cc": "E9011A2701", "area": "Presidencia", "desc": "Custos Extras - MEL EVENTOS Cavaletes crachas", "valor": 1775.0, "codforn": "1000021809", "forn": "BELETTI E PEREIRA SERVICOS SS LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0275116", "ndoc": "5100056669", "dp": "2025-12-29", "obs": null, "_resp": "Isabela Comparoni", "_ano": "2025", "_mes": 12, "_id": 39, "_archived": false, "_audit": []}, {"dl": "2025-12-19", "rc": "10734558", "oc": "4501069681", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "2a TENTATIVA - Producao de conteudo para site Heringer", "valor": 12000.0, "codforn": "1000021061", "forn": "PALAVRA COMUNICACAO LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0275664", "ndoc": "5100057135", "dp": "2025-12-29", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 12, "_id": 40, "_archived": false, "_audit": []}, {"dl": "2025-12-19", "rc": "10734591", "oc": "4501069719", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Afiliacao e anuidade 2026 - Aberje", "valor": 16807.0, "codforn": "1000001552", "forn": "ABERJE ASSOCIACAO BRASILEIRA COMUNICACAO", "resppgto": null, "status": "10 - Pago", "tipo": "Recibo", "sn": null, "ndoc": "5100057076", "dp": "2025-12-26", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 12, "_id": 41, "_archived": false, "_audit": []}, {"dl": "2025-12-19", "rc": "10734580", "oc": "4501069718", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Producao de conteudo para site EuroChem", "valor": 8000.0, "codforn": "1000021061", "forn": "PALAVRA COMUNICACAO LTDA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0275661", "ndoc": "5100057133", "dp": "2025-12-29", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 12, "_id": 42, "_archived": false, "_audit": []}, {"dl": "2025-12-19", "rc": "10734576", "oc": "4501069700", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Confeccao de Materiais institucionais FH - CANCELADO", "valor": 15000.0, "codforn": "1000003976", "forn": "LEGITIMA COMUNICACAO INTEGRADA", "resppgto": null, "status": "11 - Cancelado", "tipo": "NFe", "sn": null, "ndoc": null, "dp": null, "obs": "Cancelado - substituido pela RC 10734593", "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 12, "_id": 43, "_archived": false, "_audit": []}, {"dl": "2025-12-19", "rc": "10734593", "oc": "4501069733", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Confeccao de Materiais institucionais FH", "valor": 15000.0, "codforn": "1000003976", "forn": "LEGITIMA COMUNICACAO INTEGRADA", "resppgto": null, "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0275601", "ndoc": "5100057346", "dp": "2025-12-26", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2025", "_mes": 12, "_id": 44, "_archived": false, "_audit": []}, {"dl": "2025-12-23", "rc": "10734766", "oc": "4501071895", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Projeto e montagem Stand Sealba 2026", "valor": 182300.0, "codforn": "1000019832", "forn": "LX BR EVENTOS LTDA", "resppgto": "Marketing", "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0282376", "ndoc": null, "dp": "2026-02-18", "obs": null, "_resp": "Isabella Robaina", "_ano": "2025", "_mes": 12, "_id": 45, "_archived": false, "_audit": []}, {"dl": "2026-01-12", "rc": "10737076", "oc": "4501080371", "cc": "E9013F2601", "area": "Comunicacao", "desc": "Contrato Anual - Agencia Comunicacao 2026", "valor": 312000.0, "codforn": "1000022306", "forn": "APPROACH COMUNICACAO INTEGRADA LTDA", "resppgto": "Comunicacao", "status": "10 - Pago", "tipo": "NFe", "sn": null, "ndoc": null, "dp": null, "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 1, "_id": 46, "_archived": false, "_audit": []}, {"dl": "2026-01-12", "rc": "10737080", "oc": "4501080372", "cc": "E9013F2601", "area": "Comunicacao", "desc": "Contrato Anual - Agencia Comunicacao 2026 - CANCELADO", "valor": 312000.0, "codforn": "1000022306", "forn": "APPROACH COMUNICACAO INTEGRADA LTDA", "resppgto": "Comunicacao", "status": "11 - Cancelado", "tipo": "NFe", "sn": null, "ndoc": null, "dp": null, "obs": "RC duplicada cancelada", "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 1, "_id": 47, "_archived": false, "_audit": []}, {"dl": "2026-01-16", "rc": "-", "oc": "1900000446", "cc": "E9011E2701", "area": "Presidencia", "desc": "Taxa de Associacao Heringer ANDA", "valor": 7245.0, "codforn": "1000000077", "forn": "SINDICATO DA INDUSTRIA DE ADUBOS E CORRETIVOS AGRICOLAS", "resppgto": "Presidencia", "status": "10 - Pago", "tipo": "Boleto", "sn": null, "ndoc": null, "dp": "2026-02-20", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 1, "_id": 48, "_archived": false, "_audit": []}, {"dl": "2026-01-27", "rc": "10739151", "oc": "4501086341", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Contrato Anual - Agencia Assessoria de Imprensa", "valor": 102000.0, "codforn": "1000028479", "forn": "ALFAPRESS COMUNICACOES LTDA", "resppgto": "Marketing", "status": "10 - Pago", "tipo": "NFe", "sn": null, "ndoc": null, "dp": "2026-02-19", "obs": null, "_resp": "Isabella Robaina", "_ano": "2026", "_mes": 1, "_id": 49, "_archived": false, "_audit": []}, {"dl": "2026-01-27", "rc": "10739083", "oc": "4501086385", "cc": "E9011A2701", "area": "Presidencia", "desc": "Uniformes FH - 2a remessa", "valor": 20348.0, "codforn": "1000028346", "forn": "MZ UNIFORMES E CONFECCOES LTDA", "resppgto": "Presidencia", "status": "10 - Pago", "tipo": "Danfe", "sn": "RITM0281811", "ndoc": null, "dp": "2026-02-11", "obs": null, "_resp": "Isabella Robaina", "_ano": "2026", "_mes": 1, "_id": 50, "_archived": false, "_audit": []}, {"dl": "2026-01-28", "rc": "10739409", "oc": "4501086552", "cc": "E9011A2701", "area": "Presidencia", "desc": "Uniformes FH - Frete", "valor": 1582.0, "codforn": "1000028346", "forn": "MZ UNIFORMES E CONFECCOES LTDA", "resppgto": "Presidencia", "status": "9 - Aguardando Pgto", "tipo": "Danfe", "sn": "RITM0283046", "ndoc": null, "dp": "2026-03-18", "obs": null, "_resp": "Isabella Robaina", "_ano": "2026", "_mes": 1, "_id": 51, "_archived": false, "_audit": []}, {"dl": "2026-01-28", "rc": "10739406", "oc": "4501086553", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Transporte Uniformes - CGH ao Escritorio de Paulinia", "valor": 600.0, "codforn": "1000024035", "forn": "AF EXPRESS TRANSPORTE E LOGISTICA L", "resppgto": "Marketing", "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0281988", "ndoc": null, "dp": "2026-02-11", "obs": null, "_resp": "Isabella Robaina", "_ano": "2026", "_mes": 1, "_id": 52, "_archived": false, "_audit": []}, {"dl": "2026-02-06", "rc": "10740498", "oc": "4501094739", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Contrato Anual - Agencia Digital 2026", "valor": 216000.0, "codforn": "1000019981", "forn": "TM2 MARKETING PROMOCIONAL LTDA", "resppgto": "Marketing", "status": "4 - Aprovacao Pedido", "tipo": "NFe", "sn": null, "ndoc": null, "dp": null, "obs": "AINDA FALTA A APROVACAO DO VLAD (09/03)", "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 2, "_id": 53, "_archived": false, "_audit": []}, {"dl": "2026-02-06", "rc": "10741963", "oc": "4501094739", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Contrato Anual - Agencia Digital 2026 - TENTATIVA ANTERIOR", "valor": 5045.9, "codforn": "1000019981", "forn": "TM2 MARKETING PROMOCIONAL LTDA", "resppgto": "Marketing", "status": "11 - Cancelado", "tipo": "NFe", "sn": null, "ndoc": null, "dp": null, "obs": "Cancelado - saldo negativo incorreto", "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 2, "_id": 54, "_archived": false, "_audit": []}, {"dl": "2026-02-10", "rc": "10740904", "oc": "4501094738", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Cobertura de foto e video no evento Sealba Show", "valor": 12633.1, "codforn": "1000004766", "forn": "ME PRODUTORA AUDIOVISUAL LTDA", "resppgto": "Marketing", "status": "8 - Liberar FBL1N", "tipo": "NFe", "sn": "RITM0287394", "ndoc": null, "dp": null, "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 2, "_id": 55, "_archived": false, "_audit": []}, {"dl": "2026-02-12", "rc": "10741150", "oc": "4501094737", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Producao e Auxilio Montagem Stand Sealba", "valor": 16550.52, "codforn": "1000021809", "forn": "BELETTI E PEREIRA SERVICOS SS LTDA", "resppgto": "Marketing", "status": "9 - Aguardando Pgto", "tipo": "NFe", "sn": null, "ndoc": null, "dp": "2026-03-18", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 2, "_id": 56, "_archived": false, "_audit": []}, {"dl": "2026-02-12", "rc": "10741259", "oc": "4501094023", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Anuncio Revista LAR - Croplex 12-40", "valor": 6093.75, "codforn": "1000026897", "forn": "GUERREIRO AGRO MARKETING PUBLICIDAD", "resppgto": "Marketing", "status": "9 - Aguardando Pgto", "tipo": "NFe", "sn": null, "ndoc": null, "dp": "2026-03-18", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 2, "_id": 57, "_archived": false, "_audit": []}, {"dl": "2026-02-13", "rc": "10741415", "oc": "4501094735", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Montagem Stand Femagri 2026", "valor": 30000.0, "codforn": "1000028768", "forn": "VITORIA E MIGUEL COMERCIO E SERVICO", "resppgto": "Marketing", "status": "9 - Aguardando Pgto", "tipo": "Danfe", "sn": null, "ndoc": null, "dp": "2026-03-18", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 2, "_id": 58, "_archived": false, "_audit": []}, {"dl": "2026-02-13", "rc": "10741416", "oc": "4501094734", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Taxa de participacao ExpoCafe - Cocatrel", "valor": 26640.0, "codforn": "1000022495", "forn": "COOPERATIVA DOS CAFEICULTORES DA ZO", "resppgto": "Marketing", "status": "5 - Enviar OC ao fornecedor", "tipo": "NFe", "sn": null, "ndoc": null, "dp": null, "obs": "Aguardando a Bella me incluir", "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 2, "_id": 59, "_archived": false, "_audit": []}, {"dl": "2026-02-24", "rc": "10742104", "oc": null, "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Brindes 2o semestre - Bones chapeus e ecobags", "valor": 110440.0, "codforn": "1000019833", "forn": "BROUU INDUSTRIA E COMERCIO CONFECCO", "resppgto": "Marketing", "status": "3 - Gerar Pedido", "tipo": "Danfe", "sn": null, "ndoc": null, "dp": null, "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 2, "_id": 60, "_archived": false, "_audit": []}, {"dl": "2026-02-24", "rc": "10742105", "oc": "4501094724", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Brindes 2o semestre - Canetas e moleskines", "valor": 9212.0, "codforn": "1000022710", "forn": "SHOWME GIFTS CORPORATE BRINDES LTDA", "resppgto": "Marketing", "status": "6 - Aguardando envio da NF", "tipo": "Danfe", "sn": null, "ndoc": null, "dp": null, "obs": "PROBLEMA NO PEDIDO", "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 2, "_id": 61, "_archived": false, "_audit": []}, {"dl": "2026-02-25", "rc": "10742288", "oc": "4501095248", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Cobertura Foto e Video - FEMAGRI", "valor": 8000.0, "codforn": "1000004766", "forn": "ME PRODUTORA AUDIOVISUAL LTDA", "resppgto": "Marketing", "status": "6 - Aguardando envio da NF", "tipo": "NFe", "sn": null, "ndoc": null, "dp": null, "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 2, "_id": 62, "_archived": false, "_audit": []}, {"dl": "2026-02-01", "rc": "10739151", "oc": "4501086341", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Fee Assessoria de Imprensa - FEV", "valor": 8500.0, "codforn": "1000028479", "forn": "ALFAPRESS COMUNICACOES LTDA", "resppgto": "Marketing", "status": "10 - Pago", "tipo": "NFe", "sn": null, "ndoc": null, "dp": "2026-02-19", "obs": null, "_resp": "Isabella Robaina", "_ano": "2026", "_mes": 2, "_id": 63, "_archived": false, "_audit": []}, {"dl": "2026-03-01", "rc": "10739151", "oc": "4501086341", "cc": "E9013F2602", "area": "Marketing e Comunicacao", "desc": "Fee Assessoria de Imprensa - MAR", "valor": 8500.0, "codforn": "1000028479", "forn": "ALFAPRESS COMUNICACOES LTDA", "resppgto": "Marketing", "status": "9 - Aguardando Pgto", "tipo": "NFe", "sn": "RITM0286932", "ndoc": null, "dp": "2026-03-18", "obs": null, "_resp": "Isabella Robaina", "_ano": "2026", "_mes": 3, "_id": 64, "_archived": false, "_audit": []}, {"dl": "2026-01-01", "rc": "10737076", "oc": "4501080371", "cc": "E9013F2601", "area": "Comunicacao", "desc": "Fee Agencia de Comunicacao - JAN", "valor": 26000.0, "codforn": "1000022306", "forn": "APPROACH COMUNICACAO INTEGRADA LTDA", "resppgto": "Comunicacao", "status": "10 - Pago", "tipo": "NFe", "sn": "RITM0285367", "ndoc": null, "dp": "2026-03-04", "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 1, "_id": 65, "_archived": false, "_audit": []}, {"dl": "2026-02-01", "rc": "10737076", "oc": "4501080371", "cc": "E9013F2601", "area": "Comunicacao", "desc": "Fee Agencia de Comunicacao - FEV", "valor": 26000.0, "codforn": "1000022306", "forn": "APPROACH COMUNICACAO INTEGRADA LTDA", "resppgto": "Comunicacao", "status": "6 - Aguardando envio da NF", "tipo": "NFe", "sn": null, "ndoc": null, "dp": null, "obs": null, "_resp": "Eduardo Bertelli", "_ano": "2026", "_mes": 2, "_id": 66, "_archived": false, "_audit": []}];
 
+
+
+// Chart.js instance registry — destroy before re-creating to avoid memory leaks
+// This is important: Chart.js holds canvas references, if you create a new chart
+// on the same canvas without destroying the old one, you get ghost charts
+const CHARTS = {};
+function destroyChart(key){
+  if(CHARTS[key]){CHARTS[key].destroy();delete CHARTS[key];}
+}
+function mkChart(key, canvasId, config){
+  destroyChart(key);
+  const el = document.getElementById(canvasId);
+  if(!el) return;
+  // Read CSS variables for colors (so charts respect light/dark theme)
+  const style = getComputedStyle(document.body);
+  const mu = style.getPropertyValue('--mu').trim() || '#647086';
+  const br = style.getPropertyValue('--br').trim() || '#232d3f';
+  const tx = style.getPropertyValue('--tx').trim() || '#e2e8f4';
+  // Inject theme-aware defaults into config
+  if(!config.options) config.options = {};
+  if(!config.options.plugins) config.options.plugins = {};
+  if(!config.options.plugins.legend) config.options.plugins.legend = {};
+  config.options.plugins.legend.labels = {
+    ...config.options.plugins.legend.labels,
+    color: tx, font: {family: "'DM Sans', sans-serif", size: 11}
+  };
+  if(config.options.scales){
+    Object.values(config.options.scales).forEach(ax=>{
+      if(!ax.ticks) ax.ticks = {};
+      ax.ticks.color = mu;
+      ax.ticks.font = {family: "'DM Sans', sans-serif", size: 11};
+      if(!ax.grid) ax.grid = {};
+      ax.grid.color = br;
+      if(!ax.border) ax.border = {};
+      ax.border.color = br;
+    });
+  }
+  config.options.responsive = true;
+  config.options.maintainAspectRatio = false;
+  config.options.animation = {duration: 400, easing: 'easeOutQuart'};
+  CHARTS[key] = new Chart(el, config);
+  return CHARTS[key];
+}
 
 const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const STATUS_ORDER = [
@@ -1061,58 +1115,212 @@ function getDashData(){
 function renderDash(){
   const d = getDashData();
   const byG=(fn)=>{const m={};d.forEach(r=>{const k=fn(r)||'N/A';if(!m[k])m[k]={val:0,cnt:0};m[k].val+=r.valor||0;m[k].cnt++;});return m;};
-  const toE=m=>Object.entries(m).sort((a,b)=>b[1].val-a[1].val).map(([k,v])=>({lbl:k.length>25?k.substring(0,25)+'...':k,full:k,val:v.val,cnt:v.cnt}));
-  const bars=(entries,max)=>entries.map((e,i)=>'<div class="br-row"><div class="bl" title="'+e.full+'">'+e.lbl+'</div><div class="bt"><div class="bf" style="width:'+(max>0?(e.val/max*100).toFixed(1):0)+'%;background:'+CHART_C[i%CHART_C.length]+'"></div></div><div class="bv">'+fmtR(e.val)+'</div></div>').join('');
-  const pie=(entries,total)=>entries.map((e,i)=>'<div class="pi"><span class="pdot" style="background:'+CHART_C[i%CHART_C.length]+'"></span><span style="flex:1;color:var(--mu)">'+e[0]+'</span><span style="font-weight:600">'+(total>0?(e[1].val/total*100).toFixed(1):0)+'%</span><span style="font-size:11px;font-family:var(--mo);color:var(--mu);margin-left:5px">'+fmtR(e[1].val)+'</span></div>').join('');
+  const toE=m=>Object.entries(m).sort((a,b)=>b[1].val-a[1].val).map(([k,v])=>({lbl:k,val:v.val,cnt:v.cnt}));
+  const CC = ['#c92434','#1ec97a','#f5a524','#3d72ff','#a78bfa','#2dd4bf','#ff7b3b','#f472b6','#fbbf24','#60a5fa'];
 
-  const total = d.reduce((s,r)=>s+(r.valor||0),0);
-  const pagoT = d.filter(r=>r.status==='10 - Pago').reduce((s,r)=>s+(r.valor||0),0);
-  const andT  = d.filter(r=>r.status&&r.status!=='10 - Pago'&&r.status!=='11 - Cancelado').reduce((s,r)=>s+(r.valor||0),0);
+  const total  = d.reduce((s,r)=>s+(r.valor||0),0);
+  const pagoT  = d.filter(r=>r.status==='10 - Pago').reduce((s,r)=>s+(r.valor||0),0);
+  const andT   = d.filter(r=>r.status&&r.status!=='10 - Pago'&&r.status!=='11 - Cancelado').reduce((s,r)=>s+(r.valor||0),0);
+  const cancT  = d.filter(r=>r.status==='11 - Cancelado').reduce((s,r)=>s+(r.valor||0),0);
 
-  // By Resp — using _resp field (pre-resolved)
-  const respE = toE(byG(r=>r._resp)); const maxResp = Math.max(...respE.map(e=>e.val),1);
-  const areaE = toE(byG(r=>r.area||r.cc)); const maxArea = Math.max(...areaE.map(e=>e.val),1);
-  const fornE = toE(byG(r=>r.forn)).slice(0,8); const maxForn = Math.max(...fornE.map(e=>e.val),1);
+  const respM = byG(r=>r._resp);
+  const fornM = byG(r=>r.forn);
   const tipoM = byG(r=>r.tipo);
-  const mesM  = byG(r=>r._mes?MONTHS[r._mes-1]:null);
-  const mesE  = Object.entries(mesM).sort((a,b)=>MONTHS.indexOf(a[0])-MONTHS.indexOf(b[0])).map(([k,v])=>({lbl:k,full:k,val:v.val,cnt:v.cnt}));
-  const maxMes = Math.max(...mesE.map(e=>e.val),1);
   const stM   = byG(r=>r.status);
-  const stE   = STATUS_ORDER.filter(s=>stM[s]).map(s=>({lbl:s.replace(/^\d+\s*-?\s*/,''),full:s,val:stM[s].val,cnt:stM[s].cnt}));
-  const maxSt = Math.max(...stE.map(e=>e.val),1);
+  // Build monthly data sorted Jan→Dez
+  const mesM  = byG(r=>r._mes?MONTHS[r._mes-1]:null);
+  const mesOrdered = MONTHS.filter(m=>mesM[m]).map(m=>({lbl:m,val:mesM[m].val,cnt:mesM[m].cnt}));
 
-  const bgtHtml=(function(){
-    const ccs = [...new Set(data.filter(r=>!r._archived).map(r=>r.cc).filter(Boolean))].filter(cc=>budgets[cc]);
-    if(!ccs.length) return '<div style="font-size:12px;color:var(--mu)">Clique em &#128176; para definir orcamentos por CC.</div>';
-    const spent = {}; data.filter(r=>!r._archived).forEach(r=>{if(r.cc&&r.valor)spent[r.cc]=(spent[r.cc]||0)+r.valor;});
-    return ccs.map(cc=>{
-      const bgt=budgets[cc],sp=spent[cc]||0,pct=Math.min(100,sp/bgt*100);
-      const color=pct>90?'var(--rd)':pct>70?'var(--yw)':'var(--gr)';
-      return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>'+cc+'</span><span style="color:var(--mu)">'+fmtR(sp)+' / '+fmtR(bgt)+' ('+pct.toFixed(0)+'%)</span></div><div class="bgt-trk"><div class="bgt-fill" style="width:'+pct.toFixed(1)+'%;background:'+color+'"></div></div></div>';
-    }).join('');
-  })();
+  const respE = toE(respM);
+  const fornE = toE(fornM).slice(0,8);
+  const tipoE = toE(tipoM);
+  const stE   = STATUS_ORDER.filter(s=>stM[s]).map(s=>({lbl:s.replace(/^\d+\s*-?\s*/,''),val:stM[s].val,cnt:stM[s].cnt}));
 
+  // Budget data
+  const spent = {};
+  data.filter(r=>!r._archived).forEach(r=>{if(r.cc&&r.valor)spent[r.cc]=(spent[r.cc]||0)+r.valor;});
+  const bgtCCs = [...new Set(data.filter(r=>!r._archived).map(r=>r.cc).filter(Boolean))].filter(cc=>budgets[cc]);
+
+  // ── Render HTML shell first ──────────────────────────────────────
   document.getElementById('dash-content').innerHTML =
-    '<div class="dgrid dg3" style="margin-bottom:12px">'+
-      '<div class="cc"><div class="ct">Resumo Geral</div><div class="cs">Visao consolidada</div><div class="sl">'+
-        '<div class="sr"><span>Total Lancado</span><span class="sn">'+fmtR(total)+'</span></div>'+
-        '<div class="sr"><span>Total Pago</span><span class="sn" style="color:var(--gr)">'+fmtR(pagoT)+'</span></div>'+
-        '<div class="sr"><span>Em Andamento</span><span class="sn" style="color:var(--yw)">'+fmtR(andT)+'</span></div>'+
-        '<div class="sr"><span>Qtd Lancamentos</span><span class="sn">'+d.length+'</span></div>'+
-        '<div class="sr"><span>Ticket Medio</span><span class="sn">'+(d.length?fmtR(total/d.length):'&#8212;')+'</span></div>'+
-        '<div class="sr"><span>% Pago</span><span class="sn">'+(total>0?((pagoT/total)*100).toFixed(1)+'%':'&#8212;')+'</span></div>'+
-      '</div></div>'+
-      '<div class="cc"><div class="ct">Por Tipo de Documento</div><div class="cs">Distribuicao por tipo de NF</div><div class="pl">'+pie(Object.entries(tipoM),total)+'</div></div>'+
-      '<div class="cc"><div class="ct">Por Mes</div><div class="cs">Volume mensal</div>'+bars(mesE,maxMes)+'</div>'+
+    // KPI row
+    '<div class="dash-kpi-grid">'+
+      dKpi('Total Lancado', fmtR(total), d.length+' registros', '')+
+      dKpi('Pago', fmtR(pagoT), ((total>0?(pagoT/total*100):0).toFixed(1))+'% do total', 'color:var(--gr)')+
+      dKpi('Em Andamento', fmtR(andT), '', 'color:var(--yw)')+
+      dKpi('Cancelado', fmtR(cancT), '', 'color:var(--rd)')+
+      dKpi('Ticket Medio', d.length?fmtR(total/d.length):'—', '', '')+
     '</div>'+
+    // Row 1: Mensal (line) + Status (horizontal bar)
     '<div class="dgrid dg2" style="margin-bottom:12px">'+
-      '<div class="cc"><div class="ct">Por Status</div><div class="cs">Volume por etapa do fluxo SAP</div>'+bars(stE,maxSt)+'</div>'+
-      '<div class="cc"><div class="ct">Por Responsavel</div><div class="cs">Distribuicao por analista</div>'+bars(respE,maxResp)+'</div>'+
+      '<div class="cc"><div class="ct">Volume por Mes</div><div class="cs">Evolucao mensal do valor lancado</div><div class="chart-canvas-wrap"><canvas id="ch-mes"></canvas></div></div>'+
+      '<div class="cc"><div class="ct">Por Status</div><div class="cs">Distribuicao por etapa do fluxo SAP</div><div class="chart-canvas-wrap tall"><canvas id="ch-st"></canvas></div></div>'+
     '</div>'+
+    // Row 2: Responsavel (doughnut) + Fornecedores (bar)
+    '<div class="dgrid dg2" style="margin-bottom:12px">'+
+      '<div class="cc"><div class="ct">Por Responsavel</div><div class="cs">Volume total por analista</div><div class="chart-canvas-wrap"><canvas id="ch-resp"></canvas></div></div>'+
+      '<div class="cc"><div class="ct">Top Fornecedores</div><div class="cs">Maiores volumes (R$)</div><div class="chart-canvas-wrap tall"><canvas id="ch-forn"></canvas></div></div>'+
+    '</div>'+
+    // Row 3: Tipo (pie) + Orcamento (custom)
     '<div class="dgrid dg2">'+
-      '<div class="cc"><div class="ct">Top Fornecedores</div><div class="cs">Maiores volumes (R$)</div>'+bars(fornE,maxForn)+'</div>'+
-      '<div class="cc"><div class="ct">Orcamento por CC</div><div class="cs">Utilizacao do orcamento anual</div>'+bgtHtml+'</div>'+
+      '<div class="cc"><div class="ct">Por Tipo de Documento</div><div class="cs">Distribuicao por tipo de NF</div><div class="chart-canvas-wrap short"><canvas id="ch-tipo"></canvas></div></div>'+
+      '<div class="cc"><div class="ct">Orcamento por CC</div><div class="cs">Utilizacao do orcamento anual</div><div id="bgt-content">'+renderBgt(bgtCCs,spent,budgets)+'</div></div>'+
     '</div>';
+
+  // ── Create charts after DOM is ready ────────────────────────────
+  // Chart.js needs the canvas to exist in the DOM before new Chart()
+  // That's why we build HTML first, then create charts
+  requestAnimationFrame(()=>{
+
+    // 1. LINE CHART — Volume por Mes
+    // Line charts are great for showing trends over time
+    mkChart('mes','ch-mes',{
+      type:'line',
+      data:{
+        labels: mesOrdered.map(e=>e.lbl),
+        datasets:[{
+          label:'Valor (R$)',
+          data: mesOrdered.map(e=>e.val),
+          borderColor:'#c92434',
+          backgroundColor:'rgba(201,36,52,.12)',
+          borderWidth:2,
+          pointBackgroundColor:'#c92434',
+          pointRadius:4,
+          pointHoverRadius:6,
+          fill:true,
+          tension:0.35  // smoothing: 0=sharp, 1=very smooth
+        }]
+      },
+      options:{
+        scales:{
+          y:{ticks:{callback:v=>'R$'+Math.round(v/1000)+'k'}},
+          x:{}
+        },
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:ctx=>' '+fmtR(ctx.raw)}}
+        }
+      }
+    });
+
+    // 2. HORIZONTAL BAR — Por Status
+    // indexAxis:'y' flips the chart to horizontal — better for long labels
+    mkChart('st','ch-st',{
+      type:'bar',
+      data:{
+        labels: stE.map(e=>e.lbl),
+        datasets:[{
+          label:'Valor (R$)',
+          data: stE.map(e=>e.val),
+          backgroundColor: stE.map(e=>{
+            const raw=STATUS_ORDER.find(s=>s.replace(/^\d+\s*-?\s*/,'')===e.lbl)||'';
+            return (ST[raw]||{bg:'rgba(100,112,139,.25)'}).bg;
+          }),
+          borderRadius:5,
+          borderSkipped:false
+        }]
+      },
+      options:{
+        indexAxis:'y',
+        scales:{
+          x:{ticks:{callback:v=>'R$'+Math.round(v/1000)+'k'}},
+          y:{grid:{display:false}}
+        },
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:ctx=>' '+fmtR(ctx.raw)}}
+        }
+      }
+    });
+
+    // 3. DOUGHNUT — Por Responsavel
+    // Doughnut is great for part-of-whole with few categories
+    mkChart('resp','ch-resp',{
+      type:'doughnut',
+      data:{
+        labels: respE.map(e=>e.lbl),
+        datasets:[{
+          data: respE.map(e=>e.val),
+          backgroundColor: CC.slice(0,respE.length),
+          borderWidth:2,
+          hoverOffset:8
+        }]
+      },
+      options:{
+        cutout:'62%',  // hole size
+        plugins:{
+          legend:{position:'bottom'},
+          tooltip:{callbacks:{label:ctx=>ctx.label+': '+fmtR(ctx.raw)}}
+        }
+      }
+    });
+
+    // 4. HORIZONTAL BAR — Top Fornecedores
+    mkChart('forn','ch-forn',{
+      type:'bar',
+      data:{
+        labels: fornE.map(e=>e.lbl.length>28?e.lbl.substring(0,28)+'…':e.lbl),
+        datasets:[{
+          label:'Valor (R$)',
+          data: fornE.map(e=>e.val),
+          backgroundColor:'rgba(61,114,255,.75)',
+          borderRadius:5,
+          borderSkipped:false
+        }]
+      },
+      options:{
+        indexAxis:'y',
+        scales:{
+          x:{ticks:{callback:v=>'R$'+Math.round(v/1000)+'k'}},
+          y:{grid:{display:false}}
+        },
+        plugins:{
+          legend:{display:false},
+          tooltip:{callbacks:{label:ctx=>' '+fmtR(ctx.raw)}}
+        }
+      }
+    });
+
+    // 5. PIE — Tipo de Documento
+    mkChart('tipo','ch-tipo',{
+      type:'pie',
+      data:{
+        labels: tipoE.map(e=>e.lbl),
+        datasets:[{
+          data: tipoE.map(e=>e.val),
+          backgroundColor: CC.slice(0,tipoE.length),
+          borderWidth:2,
+          hoverOffset:6
+        }]
+      },
+      options:{
+        plugins:{
+          legend:{position:'right'},
+          tooltip:{callbacks:{label:ctx=>ctx.label+': '+fmtR(ctx.raw)+' ('+((ctx.raw/total)*100).toFixed(1)+'%)'}}
+        }
+      }
+    });
+
+  }); // end requestAnimationFrame
+}
+
+function dKpi(lbl,val,sub,valStyle){
+  return '<div class="dash-kpi"><div class="dash-kpi-lbl">'+lbl+'</div><div class="dash-kpi-val" style="'+valStyle+'">'+val+'</div>'+(sub?'<div class="dash-kpi-sub">'+sub+'</div>':'')+'</div>';
+}
+function renderBgt(ccs,spent,budgets){
+  if(!ccs.length) return '<div style="font-size:12px;color:var(--mu);padding:8px 0">Clique em &#128176; para definir orcamentos por CC.</div>';
+  return ccs.map(cc=>{
+    const bgt=budgets[cc],sp=spent[cc]||0,pct=Math.min(100,sp/bgt*100);
+    const color=pct>90?'var(--rd)':pct>70?'var(--yw)':'var(--gr)';
+    return '<div style="margin-bottom:14px">'+
+      '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px">'+
+        '<span style="font-weight:600">'+cc+'</span>'+
+        '<span style="color:var(--mu)">'+fmtR(sp)+' / '+fmtR(bgt)+'</span>'+
+      '</div>'+
+      '<div class="bgt-trk"><div class="bgt-fill" style="width:'+pct.toFixed(1)+'%;background:'+color+'"></div></div>'+
+      '<div style="font-size:11px;color:'+color+';text-align:right;margin-top:3px;font-weight:600">'+pct.toFixed(0)+'% utilizado</div>'+
+    '</div>';
+  }).join('');
 }
 
 // ── DETAIL ──────────────────────────────────────────────────────────────
