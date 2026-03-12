@@ -105,9 +105,7 @@ select option{background:var(--sf2)}
 .tw{background:var(--sf);border:1px solid var(--br);border-radius:12px;overflow:hidden}
 .ts{overflow-x:auto}
 table{width:100%;border-collapse:collapse;table-layout:fixed}
-col.c-dl{width:96px}col.c-rc{width:100px}col.c-desc{width:auto}col.c-forn{width:160px}
-col.c-val{width:100px}col.c-area{width:110px}col.c-st{width:170px}col.c-resp{width:110px}
-col.c-tipo{width:82px}col.c-dp{width:94px}col.c-obs{width:130px}col.c-act{width:46px}
+col{width:auto}
 thead{position:sticky;top:0;z-index:20}
 th{background:var(--sf2);padding:9px 11px;text-align:left;font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--br);white-space:nowrap;cursor:pointer;user-select:none;transition:color .13s;position:relative;overflow:visible}
 th:hover{color:var(--tx);background:var(--sf3)}
@@ -437,9 +435,9 @@ th.resizing{user-select:none}
     </div>
     <div class="tw"><div class="ts"><table>
       <colgroup>
-  <col class="c-dl"><col class="c-rc"><col class="c-desc"><col class="c-forn">
-  <col class="c-val"><col class="c-area"><col class="c-st"><col class="c-resp">
-  <col class="c-tipo"><col class="c-dp"><col class="c-obs"><col class="c-act">
+  <col id="col-dl"><col id="col-rc"><col id="col-desc"><col id="col-forn">
+  <col id="col-val"><col id="col-area"><col id="col-st"><col id="col-resp">
+  <col id="col-tipo"><col id="col-dp"><col id="col-obs"><col id="col-act">
 </colgroup>
 <thead><tr>
         <th id="th-dl" onclick="sortBy('dl')">Data<span id="si-dl" class="sort-arrow">↕</span><span class="col-resizer" onmousedown="startResize(event,'th-dl')"></span></th>
@@ -720,6 +718,19 @@ function mkChart(key, canvasId, config){
   return CHARTS[key];
 }
 
+
+// Normalize legacy status strings on load (fixes data imported before typo fix)
+function normalizeStatuses(){
+  const MAP = {
+    '5 -Enviar OC ao fornecedor':  '5 - Enviar OC ao fornecedor',
+    '7- Aguardando lancamento NF': '7 - Aguardando lancamento NF',
+  };
+  let changed = false;
+  data.forEach(r=>{
+    if(r.status && MAP[r.status]){r.status=MAP[r.status];changed=true;}
+  });
+  if(changed) saveState();
+}
 // ── FUSE.JS — FUZZY SEARCH ──────────────────────────────────────────
 // Fuse indexes the data array and lets us search across multiple fields
 // We rebuild the index whenever data changes (new record, load from DB)
@@ -751,8 +762,8 @@ function buildFuse(){
 const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const STATUS_ORDER = [
   '0 - Aguardando confirmacao','1 - Abertura RC','2 - Aprovacao RC','3 - Gerar Pedido',
-  '4 - Aprovacao Pedido','5 - Enviar OC ao fornecedor','5 -Enviar OC ao fornecedor',
-  '6 - Aguardando envio da NF','7- Aguardando lancamento NF',
+  '4 - Aprovacao Pedido','5 - Enviar OC ao fornecedor',
+  '6 - Aguardando envio da NF','7 - Aguardando lancamento NF',
   '8 - Liberar FBL1N','9 - Aguardando Pgto','10 - Pago','11 - Cancelado'
 ];
 const ST = {
@@ -760,10 +771,10 @@ const ST = {
   '11 - Cancelado':{bg:'rgba(255,63,94,.12)',c:'#ff3f5e',d:'#ff3f5e'},
   '9 - Aguardando Pgto':{bg:'rgba(245,165,36,.13)',c:'#f5a524',d:'#f5a524'},
   '8 - Liberar FBL1N':{bg:'rgba(100,140,255,.14)',c:'#7aabff',d:'#6b9fff'},
-  '7- Aguardando lancamento NF':{bg:'rgba(167,139,250,.12)',c:'#c4b5fd',d:'#a78bfa'},
+  '7 - Aguardando lancamento NF':{bg:'rgba(167,139,250,.12)',c:'#c4b5fd',d:'#a78bfa'},
   '6 - Aguardando envio da NF':{bg:'rgba(45,212,191,.11)',c:'#2dd4bf',d:'#2dd4bf'},
   '5 - Enviar OC ao fornecedor':{bg:'rgba(255,123,59,.12)',c:'#ff7b3b',d:'#ff7b3b'},
-  '5 -Enviar OC ao fornecedor':{bg:'rgba(255,123,59,.12)',c:'#ff7b3b',d:'#ff7b3b'},
+  '5 - Enviar OC ao fornecedor':{bg:'rgba(255,123,59,.12)',c:'#ff7b3b',d:'#ff7b3b'},
   '4 - Aprovacao Pedido':{bg:'rgba(251,191,36,.12)',c:'#fbbf24',d:'#fbbf24'},
   '3 - Gerar Pedido':{bg:'rgba(100,112,139,.17)',c:'#94a3b8',d:'#94a3b8'},
   '2 - Aprovacao RC':{bg:'rgba(100,112,139,.13)',c:'#7c8ca0',d:'#64748b'},
@@ -794,9 +805,9 @@ let budgets = {};
 // ── COLUMN RESIZE ────────────────────────────────────────────────────
 // Default widths in px — used when no saved preference exists
 const COL_DEFAULTS = {
-  'th-dl':96,'th-rc':100,'th-desc':220,'th-forn':160,
-  'th-val':100,'th-area':110,'th-st':170,'th-resp':110,
-  'th-tipo':82,'th-dp':94,'th-obs':130
+  'col-dl':96,'col-rc':100,'col-desc':220,'col-forn':160,
+  'col-val':100,'col-area':110,'col-st':170,'col-resp':110,
+  'col-tipo':82,'col-dp':94,'col-obs':130
 };
 const COL_MIN = 48; // minimum column width in px
 
@@ -805,8 +816,8 @@ function loadColWidths(){
   try{
     const saved = JSON.parse(localStorage.getItem('fh-col-widths')||'{}');
     Object.entries({...COL_DEFAULTS,...saved}).forEach(([id,w])=>{
-      const th = document.getElementById(id);
-      if(th) th.style.width = w+'px';
+      const col = document.getElementById(id);
+      if(col) col.style.width = w+'px';
     });
   }catch(e){}
 }
@@ -815,8 +826,8 @@ function saveColWidths(){
   try{
     const widths = {};
     Object.keys(COL_DEFAULTS).forEach(id=>{
-      const th = document.getElementById(id);
-      if(th) widths[id] = th.offsetWidth;
+      const col = document.getElementById(id);
+      if(col) widths[id] = parseInt(col.style.width)||COL_DEFAULTS[id];
     });
     localStorage.setItem('fh-col-widths', JSON.stringify(widths));
   }catch(e){}
@@ -825,8 +836,8 @@ function saveColWidths(){
 function resetColWidths(){
   try{localStorage.removeItem('fh-col-widths');}catch(e){}
   Object.entries(COL_DEFAULTS).forEach(([id,w])=>{
-    const th = document.getElementById(id);
-    if(th) th.style.width = w+'px';
+    const col = document.getElementById(id);
+    if(col) col.style.width = w+'px';
   });
   toast('Colunas restauradas ao padrao');
 }
@@ -839,12 +850,16 @@ let _resizeStartW = 0;
 function startResize(e, thId){
   e.preventDefault();
   e.stopPropagation(); // prevent sortBy from firing
-  _resizeThId = thId;
-  const th = document.getElementById(thId);
+
+  // Map th-xx -> col-xx (col elements control width with table-layout:fixed)
+  const colId = thId.replace('th-','col-');
+  const th  = document.getElementById(thId);
+  const col = document.getElementById(colId);
+  if(!col) return;
+
   _resizeStartX = e.clientX;
-  _resizeStartW = th.offsetWidth;
+  _resizeStartW = th.offsetWidth; // read actual rendered width from th
   th.classList.add('resizing');
-  // Find and mark the resizer handle
   const handle = e.target;
   handle.classList.add('dragging');
   document.body.style.cursor = 'col-resize';
@@ -853,17 +868,17 @@ function startResize(e, thId){
   function onMove(ev){
     const delta = ev.clientX - _resizeStartX;
     const newW  = Math.max(COL_MIN, _resizeStartW + delta);
-    document.getElementById(_resizeThId).style.width = newW+'px';
+    col.style.width = newW+'px'; // set width on col element
   }
 
   function onUp(){
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
-    document.getElementById(_resizeThId)?.classList.remove('resizing');
+    th.classList.remove('resizing');
     handle.classList.remove('dragging');
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
-    saveColWidths(); // persist preference for this user
+    saveColWidths();
     _resizeThId = null;
   }
 
@@ -1219,7 +1234,7 @@ function ieStatus(id){
     const old=r.status; r.status=sel.value;
     if(!r._audit)r._audit=[];
     r._audit.push({dt:nd,msg:'Status: '+old+' => '+r.status});
-    saveState(); applyFilters(); toast('Status atualizado');
+    saveState(); buildSelects(); applyFilters(); toast('Status atualizado');
   };
   sel.onblur=()=>applyFilters();
   cell.innerHTML=''; cell.appendChild(sel); sel.focus();
@@ -1707,7 +1722,7 @@ function openEditModal(id){
   document.getElementById('edit-modal-sub').textContent = r.desc || '';
 
   const isRC = !r.oc || r.oc==='-';
-  const ALL_STATUS = ['0 - Aguardando confirmacao','1 - Abertura RC','2 - Aprovacao RC','3 - Gerar Pedido','4 - Aprovacao Pedido','5 - Enviar OC ao fornecedor','5 -Enviar OC ao fornecedor','6 - Aguardando envio da NF','7- Aguardando lancamento NF','8 - Liberar FBL1N','9 - Aguardando Pgto','10 - Pago','11 - Cancelado'];
+  const ALL_STATUS = ['0 - Aguardando confirmacao','1 - Abertura RC','2 - Aprovacao RC','3 - Gerar Pedido','4 - Aprovacao Pedido','5 - Enviar OC ao fornecedor','5 - Enviar OC ao fornecedor','6 - Aguardando envio da NF','7 - Aguardando lancamento NF','8 - Liberar FBL1N','9 - Aguardando Pgto','10 - Pago','11 - Cancelado'];
   const stOpts = ALL_STATUS.map(s=>'<option value="'+s+'"'+(r.status===s?' selected':'')+'>'+s+'</option>').join('');
   const respOpts = [
     ['Isabella Robaina','Isabella Robaina (Bella)'],
@@ -1876,7 +1891,7 @@ function goToStep(n, skipAnim){
 function buildStep2(){
   const isRC = wzType === 'rc';
   const STATUS_RC = ['0 - Aguardando confirmacao','1 - Abertura RC','2 - Aprovacao RC'];
-  const STATUS_PED = ['3 - Gerar Pedido','4 - Aprovacao Pedido','5 - Enviar OC ao fornecedor','5 -Enviar OC ao fornecedor','6 - Aguardando envio da NF','7- Aguardando lancamento NF','8 - Liberar FBL1N','9 - Aguardando Pgto','10 - Pago','11 - Cancelado'];
+  const STATUS_PED = ['3 - Gerar Pedido','4 - Aprovacao Pedido','5 - Enviar OC ao fornecedor','5 - Enviar OC ao fornecedor','6 - Aguardando envio da NF','7 - Aguardando lancamento NF','8 - Liberar FBL1N','9 - Aguardando Pgto','10 - Pago','11 - Cancelado'];
   const statuses = isRC ? STATUS_RC : STATUS_PED;
   const stOpts = statuses.map(s=>'<option value="'+s+'">'+s+'</option>').join('');
 
@@ -2276,6 +2291,7 @@ async function appInit(){
   loadBudgets();
   document.getElementById('kpi-row').innerHTML='<div style="color:var(--mu);font-size:13px;padding:14px 4px">Carregando dados...</div>';
   await loadState();
+  normalizeStatuses();
   buildFuse();
   buildSelects();
   buildDateNav();
