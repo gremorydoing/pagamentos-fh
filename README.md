@@ -1,2 +1,2 @@
 # pagamentos-fh
-Coding pro company - Payment App
+Coding and studying for company - Payment App 
