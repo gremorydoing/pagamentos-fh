@@ -1611,7 +1611,6 @@ function toast(msg,type){
 }
 
 // ── AUTH (Supabase Auth) ─────────────────────────────────────────────
-const SB_AUTH_URL = SB_URL + '/auth/v1';
 let currentUser = null;
 
 async function authFetch(path, method, body){
