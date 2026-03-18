@@ -675,20 +675,49 @@ async function sbFetch(method,body){const res=await fetch(SB_URL+"/rest/v1/pagam
 // ── NEW: registros table (individual rows) ────────────────────────────
 // GET all rows
 async function sbGetAll(){
-  const res=await fetch(SB_URL+"/rest/v1/registros?order=id.asc&limit=5000",{headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"}});
-  if(!res.ok)throw new Error(await res.text());
+  const token = getStoredToken() || SB_KEY;
+  const res = await fetch(SB_URL + "/rest/v1/registros?order=id.asc&limit=5000", {
+    headers: {
+      "apikey": SB_KEY,
+      "Authorization": "Bearer " + token,
+      "Content-Type": "application/json"
+    }
+  });
+  if(!res.ok) throw new Error(await res.text());
   return res.json();
 }
+
 // UPSERT single row (insert or update by id)
 async function sbUpsert(row){
-  const res=await fetch(SB_URL+"/rest/v1/registros",{method:"POST",headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json","Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(row)});
-  if(!res.ok)throw new Error(await res.text());
+  const token = getStoredToken() || SB_KEY;
+  const res = await fetch(SB_URL + "/rest/v1/registros", {
+    method: "POST",
+    headers: {
+      "apikey": SB_KEY,
+      "Authorization": "Bearer " + token,
+      "Content-Type": "application/json",
+      "Prefer": "resolution=merge-duplicates,return=minimal"
+    },
+    body: JSON.stringify(row)
+  });
+  if(!res.ok) throw new Error(await res.text());
 }
+
 // UPSERT multiple rows at once
 async function sbUpsertMany(rows){
-  if(!rows.length)return;
-  const res=await fetch(SB_URL+"/rest/v1/registros",{method:"POST",headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json","Prefer":"resolution=merge-duplicates,return=minimal"},body:JSON.stringify(rows)});
-  if(!res.ok)throw new Error(await res.text());
+  if(!rows.length) return;
+  const token = getStoredToken() || SB_KEY;
+  const res = await fetch(SB_URL + "/rest/v1/registros", {
+    method: "POST",
+    headers: {
+      "apikey": SB_KEY,
+      "Authorization": "Bearer " + token,
+      "Content-Type": "application/json",
+      "Prefer": "resolution=merge-duplicates,return=minimal"
+    },
+    body: JSON.stringify(rows)
+  });
+  if(!res.ok) throw new Error(await res.text());
 }
 
 // DATA_RAW removed — all data loaded from Supabase registros table;
