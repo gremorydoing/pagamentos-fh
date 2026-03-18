@@ -1,54 +1,68 @@
 // SUPABASE
 const SB_URL="https://ejzemhsagyxcndxwpimf.supabase.co";
 const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqemVtaHNhZ3l4Y25keHdwaW1mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNzUzNTIsImV4cCI6MjA4ODc1MTM1Mn0.v85WNMeK4RRLahBPYaPt8NoUnY2Gp9wfPL25JtOp9c4";
-async function sbFetch(method,body){const res=await fetch(SB_URL+"/rest/v1/pagamentos?id=eq.1",{method,headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json","Prefer":method==="POST"?"return=minimal":"return=representation"},body:body?JSON.stringify(body):undefined});if(!res.ok)throw new Error(await res.text());return method==="GET"?res.json():null;}
+const SB_AUTH_URL = SB_URL + '/auth/v1';
+
+// ── AUTENTICACAO DINAMICA COM RENOVAÇÃO DE TOKEN ─────────────────────
+async function authApiFetch(path, options = {}) {
+  let token = getStoredToken() || SB_KEY;
+  options.headers = { ...options.headers, 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+  
+  let res = await fetch(SB_URL + path, options);
+  if (res.status === 401) {
+    const refreshed = await attemptTokenRefresh();
+    if (refreshed) {
+      token = getStoredToken();
+      options.headers['Authorization'] = 'Bearer ' + token;
+      res = await fetch(SB_URL + path, options);
+    } else {
+      doLogout();
+      throw new Error("Sessao expirada. Redirecionando...");
+    }
+  }
+  if (!res.ok) throw new Error(await res.text());
+  return res;
+}
+
+async function attemptTokenRefresh() {
+  const session = getStoredSession();
+  if (!session?.refresh_token) return false;
+  try {
+    const res = await fetch(SB_AUTH_URL + '/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: session.refresh_token })
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    storeSession(data);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
 
 // ── NEW: registros table (individual rows) ────────────────────────────
-// GET all rows
 async function sbGetAll(){
-  const token = getStoredToken() || SB_KEY;
-  const res = await fetch(SB_URL + "/rest/v1/registros?order=id.asc&limit=5000", {
-    headers: {
-      "apikey": SB_KEY,
-      "Authorization": "Bearer " + token,
-      "Content-Type": "application/json"
-    }
-  });
-  if(!res.ok) throw new Error(await res.text());
+  const res = await authApiFetch("/rest/v1/registros?order=id.asc&limit=5000", { method: 'GET' });
   return res.json();
 }
 
-// UPSERT single row (insert or update by id)
 async function sbUpsert(row){
-  const token = getStoredToken() || SB_KEY;
-  const res = await fetch(SB_URL + "/rest/v1/registros", {
+  await authApiFetch("/rest/v1/registros", {
     method: "POST",
-    headers: {
-      "apikey": SB_KEY,
-      "Authorization": "Bearer " + token,
-      "Content-Type": "application/json",
-      "Prefer": "resolution=merge-duplicates,return=minimal"
-    },
+    headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
     body: JSON.stringify(row)
   });
-  if(!res.ok) throw new Error(await res.text());
 }
 
-// UPSERT multiple rows at once
 async function sbUpsertMany(rows){
   if(!rows.length) return;
-  const token = getStoredToken() || SB_KEY;
-  const res = await fetch(SB_URL + "/rest/v1/registros", {
+  await authApiFetch("/rest/v1/registros", {
     method: "POST",
-    headers: {
-      "apikey": SB_KEY,
-      "Authorization": "Bearer " + token,
-      "Content-Type": "application/json",
-      "Prefer": "resolution=merge-duplicates,return=minimal"
-    },
+    headers: { "Prefer": "resolution=merge-duplicates,return=minimal" },
     body: JSON.stringify(rows)
   });
-  if(!res.ok) throw new Error(await res.text());
 }
 
 // DATA_RAW removed — all data loaded from Supabase registros table;
@@ -660,13 +674,17 @@ function ieStatus(id){
   sel.className='ie-sel';
   STATUS_ORDER.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(r.status===s)o.selected=true;sel.appendChild(o);});
   sel.onchange=()=>{
+    sel.onblur = null; // previne conflito de eventos
     const nd=new Date().toLocaleDateString('pt-BR');
     const old=r.status; r.status=sel.value;
     if(!r._audit)r._audit=[];
     r._audit.push({dt:nd,msg:'Status: '+old+' => '+r.status});
     saveState(r._id); buildSelects(); applyFilters(); toast('Status atualizado');
   };
-  sel.onblur=()=>applyFilters();
+  sel.onblur=()=>{
+    sel.onchange = null; // previne conflito de eventos
+    applyFilters();
+  }
   cell.innerHTML=''; cell.appendChild(sel); sel.focus();
 }
 function ieResp(id){
@@ -677,8 +695,14 @@ function ieResp(id){
   sel.className='ie-sel';
   const blank=document.createElement('option');blank.value='';blank.textContent='—';sel.appendChild(blank);
   RESPS.forEach(([v,a])=>{const o=document.createElement('option');o.value=v;o.textContent=v.split(' ')[0]+' ('+a+')';if(r._resp===v)o.selected=true;sel.appendChild(o);});
-  sel.onchange=()=>{r._resp=sel.value||null;saveState();applyFilters();toast('Responsavel atualizado');};
-  sel.onblur=()=>applyFilters();
+  sel.onchange=()=>{
+    sel.onblur = null;
+    r._resp=sel.value||null;saveState();applyFilters();toast('Responsavel atualizado');
+  };
+  sel.onblur=()=>{
+    sel.onchange = null;
+    applyFilters();
+  }
   cell.innerHTML=''; cell.appendChild(sel); sel.focus();
 }
 function ieObs(id){
@@ -1700,23 +1724,6 @@ async function doLogout(){
   location.reload();
 }
 
-// Override sbFetch to use auth token
-const _sbFetchOriginal = sbFetch;
-async function sbFetch(method, body){
-  const token = getStoredToken() || SB_KEY;
-  const res = await fetch(SB_URL+'/rest/v1/pagamentos?id=eq.1', {
-    method,
-    headers: {
-      'apikey': SB_KEY,
-      'Authorization': 'Bearer ' + token,
-      'Content-Type': 'application/json',
-      'Prefer': method==='POST'?'return=minimal':'return=representation'
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  if(!res.ok) throw new Error(await res.text());
-  return method==='GET' ? res.json() : null;
-}
 
 // App bootstrap — called only after login
 async function appInit(){
