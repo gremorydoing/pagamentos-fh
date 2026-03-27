@@ -276,9 +276,9 @@ tr.arch td:first-child{border-left:3px solid var(--rd)}
 .ie-date{background:var(--bg);border:1px solid var(--ac);border-radius:6px;padding:3px 6px;color:var(--tx);font-family:var(--fn);font-size:12px;outline:none}
 /* Context menu */
 .ctx-btn{position:relative;display:inline-flex;align-items:center;justify-content:center}
-.ctx-menu{position:absolute;right:0;top:calc(100% + 4px);background:var(--sf);border:1px solid var(--br2);border-radius:10px;padding:4px;z-index:200;min-width:150px;box-shadow:0 8px 30px rgba(0,0,0,.35);display:none;flex-direction:column;gap:2px;animation:fadeIn .12s}
+.ctx-menu{position:absolute;right:100%;top:0;background:var(--sf);border:1px solid var(--br2);border-radius:10px;padding:4px;z-index:200;min-width:150px;box-shadow:0 8px 30px rgba(0,0,0,.35);display:none;flex-direction:column;gap:2px;animation:fadeIn .12s}
 .ctx-btn:focus-within .ctx-menu,.ctx-menu:hover{display:flex}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0;transform:translateX(4px)}to{opacity:1;transform:none}}
 .ctx-item{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:7px;font-size:12px;cursor:pointer;transition:background .12s;white-space:nowrap;border:none;background:transparent;color:var(--tx);font-family:var(--fn);width:100%;text-align:left}
 .ctx-item:hover{background:var(--sf2)}
 .ctx-item.danger:hover{background:rgba(255,63,94,.12);color:var(--rd)}
